@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 import { Layout } from "./layouts/Layout";
+import { ProtectedRoute } from "./components/ProtectedRoute"
+import { Navigate } from "react-router-dom";
 
   function EventsPage() {
     return (
@@ -13,20 +15,18 @@ import { Layout } from "./layouts/Layout";
     )
   }
 
-  function HomePage() {
-    return (
-      <h1>Home Page</h1>
-    )
-  }
-
 export default function App() {
 
   return (
     <Routes>
       <Route element={<Layout />}>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={<Navigate to="/events" replace />} />
         <Route path="/events" element={<EventsPage />} />
-        <Route path="/profile" element={<ProfilePage />} />
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <ProfilePage />
+          </ProtectedRoute>
+        } />
       </Route>
     </Routes>
   )
