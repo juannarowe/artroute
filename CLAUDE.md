@@ -51,6 +51,20 @@ attendees (array of Firebase uids who marked "Go").
 
 **User:** name, email, role (`user` | `admin`).
 
+## Workflow (one Trello card at a time)
+1. The student creates the branch from an up-to-date `develop`.
+2. Move the Trello card (board "Art Route") to *In Progress*.
+   Trello access comes from the claude.ai Trello connector (no `.mcp.json`).
+3. Present a plan and wait for approval before writing code.
+4. Implement, then explain the changes file by file (in Portuguese).
+5. The student commits, pushes and opens the PR to `develop`
+   (Claude drafts the PR description: simple, in English, with a test checklist).
+6. After the merge, move the card to *Done* and comment the PR link.
+
+From the Event schema card (`feature/events-schema`) onwards, the student
+writes the code and Claude acts as a mentor: explain, review, give hints —
+do not write the solution unless asked.
+
 ## Git rules
 - Git Flow: `main` ← `develop` ← `feature/*` / `chore/*` / `fix/*`.
 - One branch per Trello card. Never work directly on `develop` or `main`.
