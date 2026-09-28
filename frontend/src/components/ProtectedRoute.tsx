@@ -1,11 +1,17 @@
 import { Navigate } from "react-router-dom";
 import { type ReactNode } from "react";
+import { useAuth } from "../hooks/useAuth";
 
 export function ProtectedRoute({ children }: { children: ReactNode }) {
-    // TODO: replace with real `useAuth()` check once merged with feature/auth-firebase
-    const isAuthenticated = false;
+    const { user, loading } = useAuth();
 
-    if (!isAuthenticated) {
+    // Wait for Firebase to restore the session, otherwise a logged-in user
+    // would be sent to /login on every page refresh.
+    if (loading) {
+        return <p>Loading...</p>
+    }
+
+    if (!user) {
         return <Navigate to="/login" replace />
     }
 

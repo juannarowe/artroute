@@ -1,18 +1,12 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./layouts/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute"
-import { Navigate } from "react-router-dom";
 import { Login } from "./pages/Login"
+import { Profile } from "./pages/Profile"
 
   function EventsPage() {
     return (
       <h2>Events Page</h2>
-    )
-  }
-
-  function ProfilePage() {
-    return (
-      <h2>Profile Page</h2>
     )
   }
 
@@ -26,11 +20,10 @@ export default function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/profile" element={
           <ProtectedRoute>
-            <ProfilePage />
+            <Profile />
           </ProtectedRoute>
         } />
       </Route>
     </Routes>
   )
 }
-
