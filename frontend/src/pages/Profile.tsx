@@ -1,4 +1,6 @@
 import { useAuth } from "../hooks/useAuth";
+import { PageTitle } from "@/components/PageTitle";
+import { Button } from "@/components/ui/button";
 
 export function Profile() {
   const { logout } = useAuth();
@@ -6,11 +8,11 @@ export function Profile() {
   // No navigate() needed: after logout, `user` becomes null and
   // ProtectedRoute redirects to /login on its own.
   return (
-    <>
-      <h2>Profile Page</h2>
-      <button type="button" onClick={logout}>
+    <div className="flex flex-col items-start gap-4">
+      <PageTitle>Profile</PageTitle>
+      <Button type="button" variant="outline" onClick={logout}>
         Log out
-      </button>
-    </>
+      </Button>
+    </div>
   );
 }
