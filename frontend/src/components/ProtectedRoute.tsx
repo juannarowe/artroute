@@ -1,8 +1,9 @@
-import { Navigate } from "react-router-dom";
-import { type ReactNode } from "react";
+import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 
-export function ProtectedRoute({ children }: { children: ReactNode }) {
+// Layout route: wraps a group of routes in App.tsx and renders the
+// matching child route (<Outlet />) only when the user is logged in.
+export function ProtectedRoute() {
     const { user, loading } = useAuth();
 
     // Wait for Firebase to restore the session, otherwise a logged-in user
@@ -15,5 +16,5 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
         return <Navigate to="/login" replace />
     }
 
-    return children;
+    return <Outlet />;
 }
