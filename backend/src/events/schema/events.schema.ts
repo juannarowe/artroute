@@ -1,6 +1,8 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { HydratedDocument } from 'mongoose';
 
+export type EventStatus = 'pending' | 'published' | 'rejected';
+
 @Schema({ timestamps: true })
 export class Event {
   @Prop({ required: true, trim: true })
@@ -44,7 +46,7 @@ export class Event {
     default: 'pending',
     enum: ['pending', 'published', 'rejected'],
   })
-  status: 'pending' | 'published' | 'rejected';
+  status: EventStatus;
 
   @Prop({ trim: true })
   rejectionNote?: string;
