@@ -2,6 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { Event, EventStatus } from './schema/events.schema';
+import { CreateEventDto } from './dto/create-event.dto';
 
 @Injectable()
 export class EventsService {
@@ -27,5 +28,13 @@ export class EventsService {
       throw new NotFoundException(`Event ${id} not found`);
     }
     return event;
+  }
+
+  create(createEventDto: CreateEventDto) {
+    return this.eventModel.create({
+      ...createEventDto,
+      // TODO: take the uid from the auth token (card #49)
+      createdBy: 'dev-user',
+    });
   }
 }

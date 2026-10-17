@@ -1,6 +1,7 @@
-import { Controller, Get, Param, Query } from '@nestjs/common';
+import { Controller, Get, Param, Query, Post, Body } from '@nestjs/common';
 import { EventsService } from './events.service';
 import type { EventStatus } from './schema/events.schema';
+import { CreateEventDto } from './dto/create-event.dto';
 
 @Controller('events')
 export class EventsController {
@@ -17,5 +18,10 @@ export class EventsController {
   @Get(':id') // GET /events/123
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(id);
+  }
+
+  @Post()
+  create(@Body() createEventDto: CreateEventDto) {
+    return this.eventsService.create(createEventDto);
   }
 }
