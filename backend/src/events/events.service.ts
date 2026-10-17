@@ -44,8 +44,7 @@ export class EventsService {
     });
   }
 
-  // TODO: only the owner or an admin (card #49)
-
+// TODO: only the owner or an admin (card #49)
   async update(id: string, updateEventDto: UpdateEventDto) {
     this.checkValidId(id);
     const updatedEvent = await this.eventModel
@@ -59,7 +58,7 @@ export class EventsService {
     }
     return updatedEvent;
   }
-
+// TODO: only the owner or an admin (card #49)
   async remove(id: string) {
     this.checkValidId(id);
     const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
