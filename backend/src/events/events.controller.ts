@@ -43,14 +43,18 @@ export class EventsController {
 
   @Patch(':id') // PATCH /events/123
   @UseGuards(FirebaseAuthGuard) // only logged-in users can update events
-  update(@Param('id') id: string, @Body() updateEventDto: UpdateEventDto) {
-    return this.eventsService.update(id, updateEventDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateEventDto: UpdateEventDto,
+    @Req() request: AuthRequest,
+  ) {
+    return this.eventsService.update(id, updateEventDto, request.user.uid);
   }
 
   @Delete(':id') // DELETE /events/123
   @UseGuards(FirebaseAuthGuard) // only logged-in users can delete events
   @HttpCode(204) // success, nothing to send back
-  remove(@Param('id') id: string) {
-    return this.eventsService.remove(id);
+  remove(@Param('id') id: string, @Req() request: AuthRequest) {
+    return this.eventsService.remove(id, request.user.uid);
   }
 }
