@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  ForbiddenException,
+} from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
 import { Event, EventStatus } from './schema/events.schema';
@@ -27,6 +31,16 @@ export class EventsService {
     return this.eventModel.find(filter).sort({ date: 1 }).exec();
   }
 
+  // Finds the event and checks that the caller is its owner.
+  // TODO: admins can also change any event (card #50)
+  private async findOwnedEvent(id: string, uid: string) {
+    const event = await this.findOne(id); // already throws 404 if not found
+    if (event.createdBy !== uid) {
+      throw new ForbiddenException('You can only change your own events');
+    }
+    return event;
+  }
+
   async findOne(id: string) {
     this.checkValidId(id);
     const event = await this.eventModel.findById(id).exec();
@@ -36,34 +50,21 @@ export class EventsService {
     return event;
   }
 
-  create(createEventDto: CreateEventDto) {
+  create(createEventDto: CreateEventDto, uid: string) {
     return this.eventModel.create({
       ...createEventDto,
-      // TODO: take the uid from the auth token (card #49)
-      createdBy: 'dev-user',
+      createdBy: uid,
     });
   }
 
-  // TODO: only the owner or an admin (card #49)
-  async update(id: string, updateEventDto: UpdateEventDto) {
-    this.checkValidId(id);
-    const updatedEvent = await this.eventModel
-      .findByIdAndUpdate(id, updateEventDto, {
-        returnDocument: 'after', // return the event AFTER the change
-        runValidators: true, // apply schema rules (min, enum...) on updates too
-      })
-      .exec();
-    if (!updatedEvent) {
-      throw new NotFoundException(`Event ${id} not found`);
-    }
-    return updatedEvent;
+  async update(id: string, updateEventDto: UpdateEventDto, uid: string) {
+    const event = await this.findOwnedEvent(id, uid);
+    event.set(updateEventDto); // copy the new values onto the event
+    return event.save(); // save() runs the schema validators
   }
-  // TODO: only the owner or an admin (card #49)
-  async remove(id: string) {
-    this.checkValidId(id);
-    const deletedEvent = await this.eventModel.findByIdAndDelete(id).exec();
-    if (!deletedEvent) {
-      throw new NotFoundException(`Event ${id} not found`);
-    }
+
+  async remove(id: string, uid: string) {
+    const event = await this.findOwnedEvent(id, uid);
+    await event.deleteOne();
   }
 }
