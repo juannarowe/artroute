@@ -36,11 +36,10 @@ export class EventsService {
     return event;
   }
 
-  create(createEventDto: CreateEventDto) {
+  create(createEventDto: CreateEventDto, uid: string) {
     return this.eventModel.create({
       ...createEventDto,
-      // TODO: take the uid from the auth token (card #49)
-      createdBy: 'dev-user',
+      createdBy: uid,
     });
   }
 
