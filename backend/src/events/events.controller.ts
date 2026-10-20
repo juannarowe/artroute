@@ -48,13 +48,13 @@ export class EventsController {
     @Body() updateEventDto: UpdateEventDto,
     @Req() request: AuthRequest,
   ) {
-    return this.eventsService.update(id, updateEventDto, request.user.uid);
+    return this.eventsService.update(id, updateEventDto, request.user);
   }
 
   @Delete(':id') // DELETE /events/123
   @UseGuards(FirebaseAuthGuard) // only logged-in users can delete events
   @HttpCode(204) // success, nothing to send back
   remove(@Param('id') id: string, @Req() request: AuthRequest) {
-    return this.eventsService.remove(id, request.user.uid);
+    return this.eventsService.remove(id, request.user);
   }
 }

@@ -8,6 +8,7 @@ import { Model, isValidObjectId } from 'mongoose';
 import { Event, EventStatus } from './schema/events.schema';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
+import type { AuthUser } from '../auth/firebase-auth.guard';
 
 @Injectable()
 export class EventsService {
@@ -33,9 +34,10 @@ export class EventsService {
 
   // Finds the event and checks that the caller is its owner.
   // TODO: admins can also change any event (card #50)
-  private async findOwnedEvent(id: string, uid: string) {
+  private async findOwnedEvent(id: string, user: AuthUser) {
     const event = await this.findOne(id); // already throws 404 if not found
-    if (event.createdBy !== uid) {
+    // Owners can change their events; admins can change any event
+    if (event.createdBy !== user.uid && user.role !== 'admin') {
       throw new ForbiddenException('You can only change your own events');
     }
     return event;
@@ -57,14 +59,14 @@ export class EventsService {
     });
   }
 
-  async update(id: string, updateEventDto: UpdateEventDto, uid: string) {
-    const event = await this.findOwnedEvent(id, uid);
+  async update(id: string, updateEventDto: UpdateEventDto, user: AuthUser) {
+    const event = await this.findOwnedEvent(id, user);
     event.set(updateEventDto); // copy the new values onto the event
     return event.save(); // save() runs the schema validators
   }
 
-  async remove(id: string, uid: string) {
-    const event = await this.findOwnedEvent(id, uid);
+  async remove(id: string, user: AuthUser) {
+    const event = await this.findOwnedEvent(id, user);
     await event.deleteOne();
   }
 }
