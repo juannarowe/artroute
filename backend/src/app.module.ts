@@ -5,6 +5,7 @@ import { Connection } from 'mongoose';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { EventsModule } from './events/events.module';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -28,6 +29,8 @@ import { EventsModule } from './events/events.module';
     }),
 
     EventsModule,
+
+    UsersModule,
   ],
   controllers: [AppController],
   providers: [AppService],
