@@ -8,11 +8,14 @@ import { ConfigService } from '@nestjs/config';
 import { Request } from 'express';
 import { getApps, initializeApp } from 'firebase-admin/app';
 import { getAuth } from 'firebase-admin/auth';
+import { UsersService } from '../users/users.service';
+import type { UserRole } from '../users/schemas/user.schema';
 
 // What the guard adds to every request it lets through
 export interface AuthUser {
   uid: string;
   email?: string;
+  role: UserRole;
 }
 
 export interface AuthRequest extends Request {
@@ -21,7 +24,10 @@ export interface AuthRequest extends Request {
 
 @Injectable()
 export class FirebaseAuthGuard implements CanActivate {
-  constructor(configService: ConfigService) {
+  constructor(
+    configService: ConfigService,
+    private usersService: UsersService,
+  ) {
     // Start firebase-admin only once, even if the guard is created many times.
     // Verifying tokens only needs the project id (no secret keys).
     if (getApps().length === 0) {
@@ -44,7 +50,16 @@ export class FirebaseAuthGuard implements CanActivate {
 
     try {
       const decodedToken = await getAuth().verifyIdToken(token);
-      request.user = { uid: decodedToken.uid, email: decodedToken.email };
+      const user = await this.usersService.findOrCreate(
+        decodedToken.uid,
+        decodedToken.email,
+        decodedToken.name as string | undefined,
+      );
+      request.user = {
+        uid: user.firebaseUid,
+        email: user.email,
+        role: user.role,
+      };
       return true;
     } catch {
       throw new UnauthorizedException('Invalid or expired auth token');
