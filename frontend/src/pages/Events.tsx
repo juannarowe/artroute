@@ -1,3 +1,4 @@
+import { EventCard } from "@/components/EventCard";
 import { PageTitle } from "@/components/PageTitle";
 import { useEvents } from "@/hooks/useEvents";
 
@@ -14,11 +15,11 @@ export function Events() {
   return (
     <div>
       <PageTitle>Events</PageTitle>
-      <ul>
+      <div className="flex flex-col gap-4">
         {events?.map((event) => (
-          <li key={event._id}>{event.title}</li>
+          <EventCard key={event._id} event={event} />
         ))}
-      </ul>
+      </div>
     </div>
   );
 }
