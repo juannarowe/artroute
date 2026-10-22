@@ -1,4 +1,4 @@
-export type EventStatus = "pending" | "approved" | "rejected";
+export type EventStatus = "pending" | "published" | "rejected";
 
 // "ArtEvent" and not "Event": the browser already has a global Event type
 // (click events, etc.), and using the same name would hide it.
