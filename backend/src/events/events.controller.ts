@@ -57,4 +57,10 @@ export class EventsController {
   remove(@Param('id') id: string, @Req() request: AuthRequest) {
     return this.eventsService.remove(id, request.user);
   }
+
+  @Post(':id/go') // POST /events/123/go
+  @UseGuards(FirebaseAuthGuard) // only logged-in users
+  toggleGo(@Param('id') id: string, @Req() request: AuthRequest) {
+    return this.eventsService.toggleGo(id, request.user.uid);
+  }
 }

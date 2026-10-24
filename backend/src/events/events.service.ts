@@ -2,6 +2,7 @@ import {
   Injectable,
   NotFoundException,
   ForbiddenException,
+  BadRequestException,
 } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, isValidObjectId } from 'mongoose';
@@ -68,5 +69,23 @@ export class EventsService {
   async remove(id: string, user: AuthUser) {
     const event = await this.findOwnedEvent(id, user);
     await event.deleteOne();
+  }
+
+  async toggleGo(id: string, uid: string) {
+    const event = await this.findOne(id);
+
+    if (event.status !== 'published') {
+      throw new BadRequestException('You can only go to published events');
+    }
+
+    const isGoing = event.attendees.includes(uid);
+
+    if (isGoing) {
+      event.attendees = event.attendees.filter((attendee) => attendee !== uid);
+    } else {
+      event.attendees = [...event.attendees, uid];
+    }
+
+    return event.save();
   }
 }
