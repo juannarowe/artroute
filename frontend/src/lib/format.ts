@@ -1,4 +1,4 @@
-// "2026-11-05T18:00:00.000Z" → "Thu, 5 Nov · 19:00" (in the user's time zone)
+// "2026-11-05T18:00:00.000Z" → "Thu 5 Nov · 19:00" (in the user's time zone)
 export function formatEventDate(isoDate: string): string {
   const date = new Date(isoDate);
   const day = date.toLocaleDateString("en-GB", {

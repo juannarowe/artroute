@@ -1,5 +1,5 @@
-import { describe, it, expect } from "vitest";
-import { render, screen } from "@testing-library/react";
+import { afterEach, describe, it, expect } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import { NotFound } from "./NotFound";
 
@@ -11,6 +11,11 @@ function renderNotFound() {
         </MemoryRouter>
     );
 }
+
+// Remove what each test rendered, so tests don't affect each other
+afterEach(() => {
+    cleanup();
+});
 
 describe("NotFound page", () => {
     it("shows the page title", () => {
