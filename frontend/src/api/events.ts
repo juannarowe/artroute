@@ -15,3 +15,7 @@ export function getEvents(filters: EventFilters = {}): Promise<ArtEvent[]> {
 export function getEvent(id: string): Promise<ArtEvent> {
   return apiFetch(`/events/${id}`);
 }
+
+export function toggleGo(id: string): Promise<ArtEvent> {
+  return apiFetch(`/events/${id}/go`, { method: "POST" });
+}
