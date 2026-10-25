@@ -23,6 +23,22 @@ export interface ArtEvent {
   updatedAt: string;
 }
 
+// What the user sends to create an event (same fields as the backend
+// CreateEventDto). status, createdBy and attendees are set by the server.
+export interface CreateEventInput {
+  title: string;
+  venue: string;
+  address: string;
+  lat: number;
+  lng: number;
+  date: string; // ISO string
+  category: string;
+  description: string;
+  price: number;
+  image?: string;
+  externalLink?: string;
+}
+
 export interface EventFilters {
   status?: EventStatus;
   owner?: string;
