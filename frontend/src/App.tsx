@@ -19,12 +19,12 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Outside the Layout: no header, no bottom nav */}
-      <Route path="/login" element={<Login />} />
-      <Route path="/register" element={<Register />} />
-
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/events" replace />} />
+
+        {/* Auth pages also keep the header and bottom nav, so users can go back */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Public: anyone can explore events */}
         <Route path="/events" element={<Events />} />
