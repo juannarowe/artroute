@@ -154,6 +154,7 @@ flowchart LR
 | POST | `/events/:id/go` | logged in | Toggle "Go" (only published events) |
 | PATCH | `/events/:id/status` | admin | Publish or reject (+ optional note) |
 | GET | `/users/me` | logged in | Current user and role (created on first login) |
+| PATCH | `/users/me` | logged in | Change your own name (role and email are not editable) |
 
 ### Data model
 
