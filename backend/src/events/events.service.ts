@@ -10,6 +10,7 @@ import { Event, EventStatus } from './schema/events.schema';
 import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import type { AuthUser } from '../auth/firebase-auth.guard';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Injectable()
 export class EventsService {
@@ -86,6 +87,30 @@ export class EventsService {
       event.attendees = [...event.attendees, uid];
     }
 
+    return event.save();
+  }
+
+  async updateStatus(
+    id: string,
+    updateStatusDto: UpdateStatusDto,
+    user: AuthUser,
+  ) {
+    // 1. Only admins can approve or reject
+    if (user.role !== 'admin') {
+      throw new ForbiddenException('Only admins can change the status');
+    }
+
+    // 2. Find the event (404 if it doesn't exist)
+    const event = await this.findOne(id);
+    // 3. Set the new status
+    event.status = updateStatusDto.status;
+    // 4. The note only makes sense when rejecting
+    event.rejectionNote =
+      updateStatusDto.status === 'rejected'
+        ? updateStatusDto.rejectionNote
+        : undefined;
+
+    // 5. Save
     return event.save();
   }
 }
