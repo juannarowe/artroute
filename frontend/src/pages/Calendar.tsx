@@ -5,19 +5,20 @@ import { EventsCalendar } from "@/components/EventsCalendar";
 export function Calendar() {
   const { items, isLoading, isError } = useCalendarItems();
 
-  if (isLoading)
+  if (isLoading) {
     return (
       <p className="py-8 text-center text-muted-foreground">
         Loading calendar...
       </p>
     );
-  if (isError)
+  }
+  if (isError) {
     return (
       <p className="py-8 text-center text-destructive">
         Error loading calendar.
       </p>
     );
-
+  }
   return (
     <div className="flex flex-col gap-4">
       <PageTitle>Calendar</PageTitle>
