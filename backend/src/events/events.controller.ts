@@ -17,6 +17,7 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import type { AuthRequest } from '../auth/firebase-auth.guard';
+import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Controller('events')
 export class EventsController {
@@ -62,5 +63,15 @@ export class EventsController {
   @UseGuards(FirebaseAuthGuard) // only logged-in users
   toggleGo(@Param('id') id: string, @Req() request: AuthRequest) {
     return this.eventsService.toggleGo(id, request.user.uid);
+  }
+
+  @Patch(':id/status') // PATCH /events/123/status
+  @UseGuards(FirebaseAuthGuard)
+  updateStatus(
+    @Param('id') id: string,
+    @Body() updateStatusDto: UpdateStatusDto, // ⚠️ normal import, NOT "import type"
+    @Req() request: AuthRequest,
+  ) {
+    return this.eventsService.updateStatus(id, updateStatusDto, request.user);
   }
 }
