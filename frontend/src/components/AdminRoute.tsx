@@ -1,6 +1,7 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { PageMessage } from "@/components/PageMessage";
 
 // Layout route for admin pages (same idea as ProtectedRoute, one step more):
 // 1. not logged in → login page
@@ -12,7 +13,7 @@ export function AdminRoute() {
   const { data: currentUser, isLoading: isLoadingRole } = useCurrentUser();
 
   if (loading || (user && isLoadingRole)) {
-    return <p className="py-8 text-center text-muted-foreground">Loading...</p>;
+    return <PageMessage variant="loading">Loading...</PageMessage>;
   }
 
   if (!user) {
@@ -21,9 +22,9 @@ export function AdminRoute() {
 
   if (currentUser?.role !== "admin") {
     return (
-      <p className="py-8 text-center text-muted-foreground">
+      <PageMessage variant="info">
         Access denied: this page is only for admins.
-      </p>
+      </PageMessage>
     );
   }
 

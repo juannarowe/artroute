@@ -21,7 +21,8 @@ export function EventList({
   }
 
   return (
-    <div className="flex flex-col gap-4">
+    // 1 column on mobile, 2 on tablet (md), 3 on desktop (lg)
+    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <EventCard key={event._id} event={event} showStatus={showStatus} />
       ))}
