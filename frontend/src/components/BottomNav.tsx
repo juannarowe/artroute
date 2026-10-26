@@ -5,7 +5,9 @@ import {
   LayoutList,
   MapIcon,
   User,
+  ShieldCheck,
 } from "lucide-react";
+import { useCurrentUser } from "@/hooks/useCurrentUser";
 
 // One entry per nav item, so the JSX below is written only once.
 const navItems = [
@@ -17,13 +19,22 @@ const navItems = [
 ];
 
 export function BottomNav() {
+  const { data: currentUser } = useCurrentUser();
+  const isAdmin = currentUser?.role === "admin";
+  const visibleItems = isAdmin
+    ? [
+        ...navItems,
+        { to: "/manage-events", label: "Manage", icon: ShieldCheck },
+      ]
+    : navItems;
+
   return (
     <nav
       aria-label="Main navigation"
       className="fixed inset-x-0 bottom-0 border-t bg-background"
     >
       <ul className="mx-auto flex max-w-md justify-around">
-        {navItems.map((item) => {
+        {visibleItems.map((item) => {
           const Icon = item.icon;
 
           return (
