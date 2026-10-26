@@ -11,6 +11,7 @@ import { MyEvents } from "./pages/MyEvents"
 import { CreateEvent } from "./pages/CreateEvent"
 import { ManageEvents } from "./pages/ManageEvents"
 import { NotFound } from "./pages/NotFound"
+import { Stats } from "./pages/Stats"
 
 export default function App() {
 
@@ -26,6 +27,7 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/map" element={<MapPage />} />
+        <Route path="/stats" element={<Stats />} />
 
         {/* Logged-in users only */}
         <Route element={<ProtectedRoute />}>
