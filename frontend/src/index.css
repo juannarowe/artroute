@@ -128,3 +128,83 @@
     @apply font-sans;
     }
 }
+/* ---------- Accessibility ---------- */
+@layer base {
+  /* Tailwind v4 resets the cursor of buttons to "default".
+     Everything clickable shows the pointer (hand) again. */
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="tab"],
+  select,
+  label[for] {
+    cursor: pointer;
+  }
+
+  /* Underlined links are easier to spot (not only by colour) */
+  a {
+    text-underline-offset: 3px;
+  }
+
+  /* Clear focus ring for keyboard users (Tab key) on links */
+  a:focus-visible {
+    outline: 2px solid var(--ring);
+    outline-offset: 2px;
+    border-radius: 4px;
+  }
+}
+
+/* ---------- FullCalendar: same look as the rest of the app ---------- */
+.fc {
+  --fc-border-color: var(--border);
+  --fc-page-bg-color: var(--background);
+  --fc-neutral-bg-color: var(--muted);
+  --fc-today-bg-color: var(--muted);
+  --fc-button-text-color: var(--foreground);
+  --fc-button-bg-color: var(--background);
+  --fc-button-border-color: var(--border);
+  --fc-button-hover-bg-color: var(--muted);
+  --fc-button-hover-border-color: var(--border);
+  --fc-button-active-bg-color: var(--primary);
+  --fc-button-active-border-color: var(--primary);
+  font-size: 0.875rem;
+}
+
+/* Toolbar: smaller title, buttons wrap on small screens */
+.fc .fc-toolbar {
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.fc .fc-toolbar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+}
+
+/* Buttons like the shadcn "outline" buttons */
+.fc .fc-button {
+  border-radius: var(--radius);
+  box-shadow: none;
+  font-size: 0.8125rem;
+  padding: 0.25rem 0.625rem;
+}
+.fc .fc-button-primary:not(:disabled).fc-button-active,
+.fc .fc-button-primary:not(:disabled):active {
+  color: var(--primary-foreground);
+}
+.fc .fc-button:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+}
+
+/* Day names and numbers: plain text, not blue links */
+.fc .fc-col-header-cell-cushion,
+.fc .fc-daygrid-day-number {
+  color: var(--muted-foreground);
+  text-decoration: none;
+}
+
+/* Events: rounded and clickable */
+.fc .fc-event {
+  border-radius: 4px;
+  cursor: pointer;
+  padding: 0 2px;
+}

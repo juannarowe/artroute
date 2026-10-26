@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvents } from "@/hooks/useEvents";
 import { useGoingEvents } from "@/hooks/useGoingEvents";
+import { PageMessage } from "@/components/PageMessage";
 
 export function Events() {
   const { user } = useAuth();
@@ -16,15 +17,9 @@ export function Events() {
   const { data: goingEvents } = useGoingEvents();
 
   if (isLoading)
-    return (
-      <p className="py-8 text-center text-muted-foreground">
-        Loading events...
-      </p>
-    );
+    return <PageMessage variant="loading">Loading events...</PageMessage>;
   if (isError)
-    return (
-      <p className="py-8 text-center text-destructive">Error loading events.</p>
-    );
+    return <PageMessage variant="error">Error loading events.</PageMessage>;
 
   return (
     <div className="flex flex-col gap-4">

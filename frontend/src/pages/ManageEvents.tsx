@@ -14,6 +14,7 @@ import {
 import { useEvents } from "@/hooks/useEvents";
 import { useUpdateStatus } from "@/hooks/useUpdateStatus";
 import { formatEventDate } from "@/lib/format";
+import { PageMessage } from "@/components/PageMessage";
 
 // Admin panel: approve or reject pending events, and see every event.
 export function ManageEvents() {
@@ -23,16 +24,10 @@ export function ManageEvents() {
   const updateStatusMutation = useUpdateStatus();
 
   if (pendingQuery.isLoading || allQuery.isLoading) {
-    return (
-      <p className="py-8 text-center text-muted-foreground">Loading events...</p>
-    );
+    return <PageMessage variant="loading">Loading events...</PageMessage>;
   }
   if (pendingQuery.isError || allQuery.isError) {
-    return (
-      <p className="py-8 text-center text-destructive">
-        Could not load events.
-      </p>
-    );
+    return <PageMessage variant="error">Could not load events.</PageMessage>;
   }
 
   const pendingEvents = pendingQuery.data ?? [];
@@ -54,9 +49,7 @@ export function ManageEvents() {
         </h2>
 
         {pendingEvents.length === 0 ? (
-          <p className="text-sm text-muted-foreground">
-            Nothing to review. 🎉
-          </p>
+          <p className="text-sm text-muted-foreground">Nothing to review. 🎉</p>
         ) : (
           <Table>
             <TableHeader>
