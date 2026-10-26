@@ -18,7 +18,7 @@ export function EventsMap({ pins }: EventsMapProps) {
       center={BARCELONA_CENTER}
       zoom={CITY_ZOOM}
       // "isolate" keeps Leaflet's layers below the fixed bottom nav
-      className="isolate h-[60vh] w-full rounded-lg"
+      className="isolate h-[60vh] w-full rounded-lg lg:h-[70vh]"
     >
       {/* The map images come from OpenStreetMap (free, needs attribution) */}
       <TileLayer

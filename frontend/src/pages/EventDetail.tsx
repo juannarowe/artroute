@@ -24,12 +24,12 @@ export function EventDetail() {
   const isGoing = user ? event.attendees.includes(user.uid) : false;
 
   return (
-    <article className="flex flex-col gap-4">
+    <article className="mx-auto flex max-w-2xl flex-col gap-4">
       {event.image && (
         <img
           src={event.image}
           alt={event.title}
-          className="h-56 w-full rounded-lg object-cover"
+          className="h-56 w-full rounded-lg object-cover md:h-80"
         />
       )}
 

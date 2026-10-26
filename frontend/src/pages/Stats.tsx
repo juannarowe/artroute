@@ -18,8 +18,10 @@ export function Stats() {
   return (
     <div className="flex flex-col gap-4">
       <PageTitle>Stats</PageTitle>
-      <StatsBarChart title="Events by category" data={eventsByCategory} />
-      <StatsBarChart title="Events by month" data={eventsByMonth} />
+      <div className="grid gap-4 md:grid-cols-2">
+        <StatsBarChart title="Events by category" data={eventsByCategory} />
+        <StatsBarChart title="Events by month" data={eventsByMonth} />
+      </div>
     </div>
   );
 }
