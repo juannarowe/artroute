@@ -48,10 +48,69 @@ on the list, the map, the calendar and the charts at once, without reloading.
 
 ## Architecture
 
+### System overview
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+flowchart LR
+  person(["Visitor · User · Admin"])
+  subgraph vercel ["Vercel"]
+    spa["React SPA<br/>Vite · TypeScript<br/>React Query · shadcn/ui"]
+  end
+  subgraph firebase ["Firebase"]
+    fbauth["Firebase Auth<br/>email + Google"]
+  end
+  subgraph render ["Render"]
+    api["NestJS API<br/>guard · DTOs · services"]
+  end
+  subgraph atlas ["MongoDB Atlas"]
+    db[("events<br/>users")]
+  end
+  person --> spa
+  spa -- "log in · ID token" --> fbauth
+  spa -- "HTTPS + Bearer token" --> api
+  api -- "verify token" --> fbauth
+  api -- "Mongoose" --> db
 ```
-React page ──▶ hook (React Query) ──▶ api function ──▶ apiFetch ──▶ NestJS API ──▶ MongoDB
- (dumb UI)      (cache + states)       (which route)    (token, URL,   (guard → controller
-                                                         errors)        → service → model)
+
+### Frontend data flow
+
+One request feeds the list, the map, the calendar and the charts: they all read
+the same React Query cache and transform it with `useMemo`.
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+flowchart TB
+  subgraph pages ["Pages · dumb components"]
+    direction LR
+    pEvents["Events<br/>All · Going"]
+    pMap["Map"]
+    pCalendar["Calendar"]
+    pStats["Stats"]
+  end
+  subgraph derived ["Derived hooks · useMemo, no fetch"]
+    direction LR
+    hGoing["useGoingEvents"]
+    hPins["useMapPins"]
+    hItems["useCalendarItems"]
+    hStats["useEventStats"]
+  end
+  hEvents["useEvents · status published"]
+  cache[("React Query cache<br/>one request, shared")]
+  apiFn["getEvents → apiFetch<br/>base URL · token · errors"]
+  backend["GET /events?status=published"]
+  pEvents --> hEvents
+  pEvents --> hGoing
+  pMap --> hPins
+  pCalendar --> hItems
+  pStats --> hStats
+  hGoing --> hEvents
+  hPins --> hEvents
+  hItems --> hEvents
+  hStats --> hEvents
+  hEvents <--> cache
+  hEvents --> apiFn
+  apiFn --> backend
 ```
 
 Main rules of the project:
@@ -63,6 +122,25 @@ Main rules of the project:
    - DTO whitelist → users cannot send `status`, `createdBy` or `attendees`
    - owner rule → only the creator or an admin can edit/delete an event (403)
    - only admins can approve or reject (403); roles are stored in MongoDB, never taken from the request
+
+### Backend request pipeline
+
+Every request goes through the same checks, in this order:
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+flowchart LR
+  req["HTTP request"] --> guard["FirebaseAuthGuard<br/>verify token · load role"]
+  guard -- "no or bad token" --> e401["401 Unauthorized"]
+  guard --> pipe["ValidationPipe<br/>DTO whitelist"]
+  pipe -- "invalid body" --> e400["400 Bad Request"]
+  pipe --> ctrl["Controller<br/>route · params"]
+  ctrl --> svc["Service<br/>owner / admin rules"]
+  svc -- "not allowed" --> e403["403 Forbidden"]
+  svc -- "unknown id" --> e404["404 Not Found"]
+  svc --> model["Mongoose model"]
+  model --> db[("MongoDB")]
+```
 
 ### API
 
@@ -76,6 +154,131 @@ Main rules of the project:
 | POST | `/events/:id/go` | logged in | Toggle "Go" (only published events) |
 | PATCH | `/events/:id/status` | admin | Publish or reject (+ optional note) |
 | GET | `/users/me` | logged in | Current user and role (created on first login) |
+
+### Data model
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+erDiagram
+  USER ||--o{ EVENT : "creates (createdBy)"
+  USER }o--o{ EVENT : "goes to (attendees)"
+  USER {
+    string firebaseUid PK
+    string name
+    string email
+    string role "user or admin"
+  }
+  EVENT {
+    ObjectId _id PK
+    string title
+    string venue
+    string address
+    number lat
+    number lng
+    date date
+    string category
+    string description
+    string image "optional"
+    number price "0 = free"
+    string externalLink "optional"
+    string createdBy FK "Firebase uid"
+    string status "pending, published or rejected"
+    string rejectionNote "optional"
+    list attendees "Firebase uids"
+  }
+```
+
+## Sitemap
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+flowchart TB
+  home["/"] --> sEvents
+  subgraph public ["Public"]
+    sEvents["/events<br/>All · Going"]
+    sDetail["/events/:id"]
+    sMap["/map"]
+    sStats["/stats"]
+    sLogin["/login"]
+    sRegister["/register"]
+  end
+  subgraph loggedIn ["Logged-in users"]
+    sCalendar["/calendar"]
+    sProfile["/profile"]
+    sMyEvents["/my-events"]
+    sCreate["/events/new"]
+  end
+  subgraph admins ["Admins"]
+    sManage["/manage-events"]
+  end
+  sEvents --> sDetail
+  sMap --> sDetail
+  sCalendar --> sDetail
+  sLogin <--> sRegister
+  sProfile --> sMyEvents
+  sProfile --> sCreate
+  sManage --> sDetail
+```
+
+## User flows
+
+### Event lifecycle
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+stateDiagram-v2
+  [*] --> pending : user submits the form
+  pending --> published : admin approves
+  pending --> rejected : admin rejects, with a note
+  published --> [*]
+  rejected --> [*]
+  note right of published
+    Visible on the list, map,
+    calendar and stats
+  end note
+```
+
+### Create an event → admin approval → everything in sync
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+sequenceDiagram
+  actor U as User
+  participant FE as React app
+  participant API as NestJS API
+  participant DB as MongoDB
+  actor A as Admin
+  U->>FE: Fills in the "Create event" form
+  FE->>API: POST /events (Bearer token)
+  API->>DB: save · status pending · createdBy = uid
+  API-->>FE: 201 Created
+  FE-->>U: My Events shows "Pending review"
+  A->>FE: Manage Events · Approve
+  FE->>API: PATCH /events/:id/status · published
+  API->>DB: status = published
+  API-->>FE: 200 OK
+  FE->>FE: invalidate the events cache
+  FE-->>A: List, map, calendar and stats update at once
+```
+
+### Mark "Go"
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+sequenceDiagram
+  actor U as User
+  participant FE as React app
+  participant API as NestJS API
+  U->>FE: Clicks "Go" on an event
+  FE->>API: POST /events/:id/go (Bearer token)
+  alt uid not in attendees
+    API-->>FE: 201 · uid added
+  else uid already in attendees
+    API-->>FE: 201 · uid removed
+  end
+  FE->>FE: invalidate events and event caches
+  FE-->>U: Button shows "Going", Going tab and black map pin update
+```
 
 ## Project structure
 
