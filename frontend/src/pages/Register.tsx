@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { getRegisterErrorMessage } from "@/lib/authErrors";
 import { Button } from "@/components/ui/button";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -39,7 +40,7 @@ export function Register() {
   }
 
   return (
-    <main className="flex min-h-svh items-center justify-center p-4">
+    <div className="flex justify-center py-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -100,6 +101,8 @@ export function Register() {
             </Button>
           </form>
 
+          <GoogleSignInButton onError={setError} />
+
           <p className="text-center text-sm text-muted-foreground">
             Already have an account?{" "}
             <Link to="/login" className="underline">
@@ -108,6 +111,6 @@ export function Register() {
           </p>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }

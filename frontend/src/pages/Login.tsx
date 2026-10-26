@@ -2,6 +2,7 @@ import { useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "@/components/ui/button";
+import { GoogleSignInButton } from "@/components/GoogleSignInButton";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import {
@@ -17,7 +18,7 @@ export function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState<string | null>(null);
 
-  const { login, loginWithGoogle } = useAuth();
+  const { login } = useAuth();
   const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
@@ -32,19 +33,8 @@ export function Login() {
     }
   }
 
-  async function handleGoogleLogin() {
-    setError(null);
-
-    try {
-      await loginWithGoogle();
-      navigate("/events");
-    } catch {
-      setError("Could not sign in with Google. Please try again.");
-    }
-  }
-
   return (
-    <main className="flex min-h-svh items-center justify-center p-4">
+    <div className="flex justify-center py-4">
       <Card className="w-full max-w-sm">
         <CardHeader>
           <CardTitle>
@@ -90,23 +80,13 @@ export function Login() {
             </Button>
           </form>
 
-          <Button
-            type="button"
-            variant="outline"
-            className="w-full"
-            onClick={handleGoogleLogin}
-          >
-            Continue with Google
-          </Button>
+          <GoogleSignInButton onError={setError} />
 
-          <p className="text-center text-sm text-muted-foreground">
-            New to Art Route?{" "}
-            <Link to="/register" className="underline">
-              Create an account
-            </Link>
-          </p>
+          <Link to="/register" className="text-center text-sm underline">
+            Create an account
+          </Link>
         </CardContent>
       </Card>
-    </main>
+    </div>
   );
 }
