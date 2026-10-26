@@ -39,6 +39,12 @@ export interface CreateEventInput {
   externalLink?: string;
 }
 
+// What an admin sends to approve or reject an event (backend UpdateStatusDto)
+export interface UpdateStatusInput {
+  status: "published" | "rejected";
+  rejectionNote?: string;
+}
+
 export interface EventFilters {
   status?: EventStatus;
   owner?: string;

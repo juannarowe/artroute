@@ -1,5 +1,10 @@
 import { apiFetch } from "@/lib/api";
-import type { ArtEvent, CreateEventInput, EventFilters } from "@/types/event";
+import type {
+  ArtEvent,
+  CreateEventInput,
+  EventFilters,
+  UpdateStatusInput,
+} from "@/types/event";
 
 export function getEvents(filters: EventFilters = {}): Promise<ArtEvent[]> {
   const params = new URLSearchParams();
@@ -22,4 +27,14 @@ export function toggleGo(id: string): Promise<ArtEvent> {
 
 export function createEvent(input: CreateEventInput): Promise<ArtEvent> {
   return apiFetch(`/events`, { method: "POST", body: JSON.stringify(input) });
+}
+
+export function updateEventStatus(
+  id: string,
+  input: UpdateStatusInput,
+): Promise<ArtEvent> {
+  return apiFetch(`/events/${id}/status`, {
+    method: "PATCH",
+    body: JSON.stringify(input),
+  });
 }

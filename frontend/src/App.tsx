@@ -1,6 +1,7 @@
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./layouts/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute"
+import { AdminRoute } from "./components/AdminRoute"
 import { Login } from "./pages/Login"
 import { Events } from "./pages/Events"
 import { EventDetail } from "./pages/EventDetail"
@@ -35,7 +36,10 @@ export default function App() {
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-events" element={<MyEvents />} />
           <Route path="/events/new" element={<CreateEvent />} />
-          {/* Admin-only check comes with the user role card */}
+        </Route>
+
+        {/* Admins only (the backend checks the role again) */}
+        <Route element={<AdminRoute />}>
           <Route path="/manage-events" element={<ManageEvents />} />
         </Route>
 
