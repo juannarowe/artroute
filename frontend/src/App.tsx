@@ -3,6 +3,7 @@ import { Layout } from "./layouts/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { AdminRoute } from "./components/AdminRoute"
 import { Login } from "./pages/Login"
+import { Register } from "./pages/Register"
 import { Events } from "./pages/Events"
 import { EventDetail } from "./pages/EventDetail"
 import { MapPage } from "./pages/Map"
@@ -18,11 +19,12 @@ export default function App() {
 
   return (
     <Routes>
-      {/* Outside the Layout: no header, no bottom nav */}
-      <Route path="/login" element={<Login />} />
-
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/events" replace />} />
+
+        {/* Auth pages also keep the header and bottom nav, so users can go back */}
+        <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
 
         {/* Public: anyone can explore events */}
         <Route path="/events" element={<Events />} />
