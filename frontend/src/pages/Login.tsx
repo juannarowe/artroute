@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -98,6 +98,13 @@ export function Login() {
           >
             Continue with Google
           </Button>
+
+          <p className="text-center text-sm text-muted-foreground">
+            New to Art Route?{" "}
+            <Link to="/register" className="underline">
+              Create an account
+            </Link>
+          </p>
         </CardContent>
       </Card>
     </main>

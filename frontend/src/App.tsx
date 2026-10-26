@@ -2,6 +2,7 @@ import { Routes, Route, Navigate } from "react-router-dom";
 import { Layout } from "./layouts/Layout";
 import { ProtectedRoute } from "./components/ProtectedRoute"
 import { Login } from "./pages/Login"
+import { Register } from "./pages/Register"
 import { Events } from "./pages/Events"
 import { EventDetail } from "./pages/EventDetail"
 import { MapPage } from "./pages/Map"
@@ -19,6 +20,7 @@ export default function App() {
     <Routes>
       {/* Outside the Layout: no header, no bottom nav */}
       <Route path="/login" element={<Login />} />
+      <Route path="/register" element={<Register />} />
 
       <Route element={<Layout />}>
         <Route path="/" element={<Navigate to="/events" replace />} />

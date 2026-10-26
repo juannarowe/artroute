@@ -1,7 +1,9 @@
 import { useEffect, useState, type ReactNode } from "react";
 import {
+  createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
+  updateProfile,
   signInWithPopup,
   GoogleAuthProvider,
   signOut,
@@ -28,6 +30,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     await signInWithEmailAndPassword(auth, email, password);
   };
 
+  const register = async (name: string, email: string, password: string) => {
+    // 1. Create the account in Firebase (this also logs the user in)
+    const credential = await createUserWithEmailAndPassword(auth, email, password);
+    // 2. Save the name in the Firebase profile
+    await updateProfile(credential.user, { displayName: name });
+    // 3. Get a fresh token that includes the name. The backend creates the
+    //    user in MongoDB (with this name) on the first request (GET /users/me).
+    await credential.user.getIdToken(true);
+  };
+
   const loginWithGoogle = async () => {
     await signInWithPopup(auth, new GoogleAuthProvider());
   };
@@ -39,7 +51,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   return (
     <AuthContext.Provider
-      value={{ user, loading, login, loginWithGoogle, logout }}
+      value={{ user, loading, login, register, loginWithGoogle, logout }}
     >
       {children}
     </AuthContext.Provider>
