@@ -1,11 +1,18 @@
 import { NavLink } from "react-router-dom";
-import { CalendarDays, LayoutList, MapIcon, User } from "lucide-react";
+import {
+  ChartColumn,
+  CalendarDays,
+  LayoutList,
+  MapIcon,
+  User,
+} from "lucide-react";
 
 // One entry per nav item, so the JSX below is written only once.
 const navItems = [
   { to: "/events", label: "Events", icon: LayoutList },
   { to: "/map", label: "Map", icon: MapIcon },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
+  { to: "/stats", label: "Stats", icon: ChartColumn },
   { to: "/profile", label: "Profile", icon: User },
 ];
 
