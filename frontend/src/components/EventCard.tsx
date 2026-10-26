@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { ImageIcon } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { formatEventDate, formatPrice } from "@/lib/format";
 import type { ArtEvent } from "@/types/event";
@@ -17,13 +18,21 @@ export function EventCard({ event, showStatus }: EventCardProps) {
       className="block h-full rounded-xl transition-shadow hover:shadow-md"
     >
       <Card className="h-full overflow-hidden">
-        {event.image && (
+        {/* No image → a grey box of the same size, so every card lines up */}
+        {event.image ? (
           <img
             src={event.image}
             // Empty alt: the image is decorative here, the title is read just below
             alt=""
             className="h-40 w-full object-cover"
           />
+        ) : (
+          <div
+            aria-hidden="true"
+            className="flex h-40 w-full items-center justify-center bg-muted text-muted-foreground"
+          >
+            <ImageIcon className="size-8" />
+          </div>
         )}
         <CardHeader>
           <CardTitle>{event.title}</CardTitle>
