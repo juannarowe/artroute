@@ -18,4 +18,11 @@ export class UsersService {
     }
     return this.userModel.create({ firebaseUid: uid, email, name });
   }
+
+  // Change the name of the logged-in user (the same pattern as events: find, change, save)
+  async updateName(uid: string, name: string) {
+    const user = await this.findOrCreate(uid);
+    user.name = name;
+    return user.save();
+  }
 }
