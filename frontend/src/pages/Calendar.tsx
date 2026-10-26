@@ -15,7 +15,9 @@ export function Calendar() {
   return (
     <div className="flex flex-col gap-4">
       <PageTitle>Calendar</PageTitle>
-      <EventsCalendar items={items} />
+      <section aria-label="Calendar of published events">
+        <EventsCalendar items={items} />
+      </section>
       <p className="text-sm text-muted-foreground">
         ■ Black: events you're going to · □ White: other events
       </p>

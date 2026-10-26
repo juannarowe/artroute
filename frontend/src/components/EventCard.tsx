@@ -12,12 +12,16 @@ interface EventCardProps {
 export function EventCard({ event, showStatus }: EventCardProps) {
   return (
     // The whole card is a link to the detail page
-    <Link to={`/events/${event._id}`} className="block">
-      <Card className="overflow-hidden">
+    <Link
+      to={`/events/${event._id}`}
+      className="block h-full rounded-xl transition-shadow hover:shadow-md"
+    >
+      <Card className="h-full overflow-hidden">
         {event.image && (
           <img
             src={event.image}
-            alt={event.title}
+            // Empty alt: the image is decorative here, the title is read just below
+            alt=""
             className="h-40 w-full object-cover"
           />
         )}
