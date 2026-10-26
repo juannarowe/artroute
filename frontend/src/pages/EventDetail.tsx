@@ -5,6 +5,7 @@ import { formatEventDate, formatPrice } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
 import { useToggleGo } from "@/hooks/useToggleGo";
 import { Button } from "@/components/ui/button";
+import { PageMessage } from "@/components/PageMessage";
 
 export function EventDetail() {
   const { id } = useParams();
@@ -13,15 +14,11 @@ export function EventDetail() {
   const toggleGoMutation = useToggleGo();
 
   if (isLoading) {
-    return (
-      <p className="py-8 text-center text-muted-foreground">Loading event...</p>
-    );
+    return <PageMessage variant="loading">Loading event...</PageMessage>;
   }
   // The backend answers 404 for unknown or invalid ids → apiFetch throws → isError
   if (isError || !event) {
-    return (
-      <p className="py-8 text-center text-muted-foreground">Event not found.</p>
-    );
+    return <PageMessage variant="info">Event not found.</PageMessage>;
   }
 
   const isGoing = user ? event.attendees.includes(user.uid) : false;

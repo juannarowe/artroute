@@ -1,18 +1,17 @@
 import { useMyEvents } from "@/hooks/useMyEvents";
 import { PageTitle } from "@/components/PageTitle";
 import { EventList } from "@/components/EventList";
+import { PageMessage } from "@/components/PageMessage";
 
 export function MyEvents() {
   const { data: events, isLoading, isError } = useMyEvents();
 
   if (isLoading) {
-    return <p className="py-8 text-center text-muted-foreground">Loading...</p>;
+    return <PageMessage variant="loading">Loading...</PageMessage>;
   }
 
   if (isError) {
-    return (
-      <p className="py-8 text-center text-destructive">Error loading events.</p>
-    );
+    return <PageMessage variant="error">Error loading events.</PageMessage>;
   }
 
   return (

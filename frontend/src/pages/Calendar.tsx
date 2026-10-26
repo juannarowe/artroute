@@ -1,23 +1,16 @@
 import { useCalendarItems } from "@/hooks/useCalendarItems";
 import { PageTitle } from "@/components/PageTitle";
 import { EventsCalendar } from "@/components/EventsCalendar";
+import { PageMessage } from "@/components/PageMessage";
 
 export function Calendar() {
   const { items, isLoading, isError } = useCalendarItems();
 
   if (isLoading) {
-    return (
-      <p className="py-8 text-center text-muted-foreground">
-        Loading calendar...
-      </p>
-    );
+    return <PageMessage variant="loading">Loading calendar...</PageMessage>;
   }
   if (isError) {
-    return (
-      <p className="py-8 text-center text-destructive">
-        Error loading calendar.
-      </p>
-    );
+    return <PageMessage variant="error">Error loading calendar.</PageMessage>;
   }
   return (
     <div className="flex flex-col gap-4">
