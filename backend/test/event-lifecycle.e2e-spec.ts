@@ -4,7 +4,8 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { Model } from 'mongoose';
+import { ConnectOptions, Model } from 'mongoose';
+import * as os from 'os';
 import request, { Response } from 'supertest';
 import { App } from 'supertest/types';
 import { EventsModule } from '../src/events/events.module';
@@ -52,7 +53,9 @@ defineFeature(feature, (test) => {
   let eventId: string;
 
   beforeAll(async () => {
-    mongo = await MongoMemoryServer.create();
+    mongo = await MongoMemoryServer.create({
+      binary: { version: '7.0.14' },
+    });
     const moduleRef = await Test.createTestingModule({
       imports: [
         ConfigModule.forRoot({
@@ -60,7 +63,9 @@ defineFeature(feature, (test) => {
           ignoreEnvFile: true,
           load: [() => ({ FIREBASE_PROJECT_ID: 'test-project' })],
         }),
-        MongooseModule.forRoot(mongo.getUri()),
+        MongooseModule.forRoot(mongo.getUri(), {
+          runtimeAdapters: { os },
+        } as ConnectOptions),
         EventsModule,
         UsersModule,
       ],
