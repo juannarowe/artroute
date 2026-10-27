@@ -16,7 +16,6 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 export class EventsService {
   constructor(@InjectModel(Event.name) private eventModel: Model<Event>) {}
 
-  // Invalid ids can't exist in the database, so treat them as "not found"
   private checkValidId(id: string) {
     if (!isValidObjectId(id)) {
       throw new NotFoundException(`Event ${id} not found`);
@@ -34,11 +33,8 @@ export class EventsService {
     return this.eventModel.find(filter).sort({ date: 1 }).exec();
   }
 
-  // Finds the event and checks that the caller is its owner.
-  // TODO: admins can also change any event (card #50)
   private async findOwnedEvent(id: string, user: AuthUser) {
-    const event = await this.findOne(id); // already throws 404 if not found
-    // Owners can change their events; admins can change any event
+    const event = await this.findOne(id);
     if (event.createdBy !== user.uid && user.role !== 'admin') {
       throw new ForbiddenException('You can only change your own events');
     }
@@ -63,8 +59,8 @@ export class EventsService {
 
   async update(id: string, updateEventDto: UpdateEventDto, user: AuthUser) {
     const event = await this.findOwnedEvent(id, user);
-    event.set(updateEventDto); // copy the new values onto the event
-    return event.save(); // save() runs the schema validators
+    event.set(updateEventDto);
+    return event.save();
   }
 
   async remove(id: string, user: AuthUser) {
@@ -95,22 +91,17 @@ export class EventsService {
     updateStatusDto: UpdateStatusDto,
     user: AuthUser,
   ) {
-    // 1. Only admins can approve or reject
     if (user.role !== 'admin') {
       throw new ForbiddenException('Only admins can change the status');
     }
 
-    // 2. Find the event (404 if it doesn't exist)
     const event = await this.findOne(id);
-    // 3. Set the new status
     event.status = updateStatusDto.status;
-    // 4. The note only makes sense when rejecting
     event.rejectionNote =
       updateStatusDto.status === 'rejected'
         ? updateStatusDto.rejectionNote
         : undefined;
 
-    // 5. Save
     return event.save();
   }
 }

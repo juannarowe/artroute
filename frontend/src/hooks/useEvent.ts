@@ -5,6 +5,6 @@ export function useEvent(id: string | undefined) {
   return useQuery({
     queryKey: ["event", id],
     queryFn: () => getEvent(id as string),
-    enabled: Boolean(id), // don't fetch until there is an id
+    enabled: Boolean(id),
   });
 }

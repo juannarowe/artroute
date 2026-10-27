@@ -23,7 +23,6 @@ export function Events() {
   if (isError)
     return <PageMessage variant="error">Error loading events.</PageMessage>;
 
-  // The same Go props for both tabs. Logged out: no Go buttons on the cards.
   const goProps = user
     ? {
         userId: user.uid,
@@ -52,14 +51,12 @@ export function Events() {
 
         <TabsContent value="going">
           {user ? (
-            // A: what logged-in users see.
             <EventList
               events={goingEvents}
               emptyMessage="You haven't marked any event as Go yet."
               {...goProps}
             />
           ) : (
-            // B: what logged-out users see.
             <p className="py-8 text-center text-muted-foreground">
               <Link to="/login" className="underline">
                 Log in

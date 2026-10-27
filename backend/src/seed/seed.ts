@@ -12,21 +12,18 @@ async function seed() {
   }
 
   await mongoose.connect(uri);
-  // Same model name and schema the app uses → same "events" collection
   const EventModel = mongoose.model(Event.name, EventSchema);
 
   try {
-    // Only the sample data: real events are never touched
     const deleted = await EventModel.deleteMany({ createdBy: /^seed-/ });
     const inserted = await EventModel.insertMany(seedEvents);
     logger.log(`Deleted ${deleted.deletedCount}, inserted ${inserted.length}`);
   } finally {
-    // Always close the connection, even if something failed
     await mongoose.disconnect();
   }
 }
 
 seed().catch((error) => {
   logger.error(error);
-  process.exitCode = 1; // tell the terminal the script failed
+  process.exitCode = 1;
 });

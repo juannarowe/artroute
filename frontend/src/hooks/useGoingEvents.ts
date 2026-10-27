@@ -2,7 +2,6 @@ import { useMemo } from "react";
 import { useAuth } from "./useAuth";
 import { useEvents } from "./useEvents";
 
-// No fetch: filters the published events the current user marked "Go"
 export function useGoingEvents() {
   const { user } = useAuth();
   const eventsQuery = useEvents({ status: "published" });

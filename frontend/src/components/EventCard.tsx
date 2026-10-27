@@ -9,7 +9,6 @@ import { StatusBadge } from "./StatusBadge";
 interface EventCardProps {
   event: ArtEvent;
   showStatus?: boolean;
-  // Only for logged-in users: without onToggleGo there is no Go button
   isGoing?: boolean;
   isTogglingGo?: boolean;
   onToggleGo?: () => void;
@@ -23,16 +22,9 @@ export function EventCard({
   onToggleGo,
 }: EventCardProps) {
   return (
-    // "relative": the title link below stretches over the whole card
     <Card className="relative h-full overflow-hidden transition-shadow hover:shadow-md">
-      {/* No image → a grey box of the same size, so every card lines up */}
       {event.image ? (
-        <img
-          src={event.image}
-          // Empty alt: the image is decorative here, the title is read just below
-          alt=""
-          className="h-40 w-full object-cover"
-        />
+        <img src={event.image} alt="" className="h-40 w-full object-cover" />
       ) : (
         <div
           aria-hidden="true"
@@ -46,9 +38,6 @@ export function EventCard({
           Opening on {formatEventDate(event.date)}
         </p>
         <CardTitle>
-          {/* "Stretched link": its ::after box covers the whole card, so a click
-              anywhere opens the detail page. A button can't live inside a link,
-              that's why the link is on the title and not around the card. */}
           <Link
             to={`/events/${event._id}`}
             className="after:absolute after:inset-0"
@@ -65,7 +54,6 @@ export function EventCard({
             {formatCategory(event.category)} · {formatPrice(event.price)}
           </p>
           {onToggleGo && (
-            // "relative z-10": the button sits above the stretched link
             <div className="relative z-10">
               <GoButton
                 size="sm"

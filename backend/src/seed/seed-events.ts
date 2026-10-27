@@ -1,11 +1,5 @@
 import { Event } from '../events/schema/events.schema';
 
-// Sample data for development and the live demo.
-// Galleries are fictional; streets and coordinates are real Barcelona places.
-// Every seed event has a createdBy starting with "seed-", so the seed script
-// can delete and re-insert them without touching real events.
-
-// Builds fake attendee uids: seedAttendees(3) → ['seed-attendee-1', ...]
 function seedAttendees(count: number): string[] {
   const attendees: string[] = [];
   for (let i = 1; i <= count; i++) {

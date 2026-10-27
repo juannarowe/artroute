@@ -7,8 +7,6 @@ import { useCreateEvent } from "@/hooks/useCreateEvent";
 import type { CreateEventInput } from "@/types/event";
 import { CreateEvent } from "./CreateEvent";
 
-// The page sends the form through useCreateEvent().mutate. We replace the
-// hook with a fake, so nothing is sent to the backend during the tests.
 vi.mock("@/hooks/useCreateEvent");
 const mutate = vi.fn();
 
@@ -38,12 +36,9 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   });
 
   Scenario("A user submits a new event", ({ Given, When, Then, And }) => {
-    // Each Gherkin step runs as its own test and the fake's history is
-    // cleared between steps, so we save what was sent in the "submit" step.
     let sentValues: CreateEventInput | undefined;
 
     Given("the user is on the create event page", () => {
-      // Fake backend: "it worked", the new event has the id "new-event-1"
       mutate.mockImplementation((_values, options) => {
         options.onSuccess({ _id: "new-event-1" });
       });
@@ -64,7 +59,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
         );
         await userEvent.type(screen.getByLabelText("Latitude"), "41.38");
         await userEvent.type(screen.getByLabelText("Longitude"), "2.17");
-        // Date inputs are easier to fill with a "change" event
         fireEvent.change(screen.getByLabelText("Date and time"), {
           target: { value: "2026-11-20T19:00" },
         });
@@ -95,9 +89,7 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   });
 
   Scenario("The backend rejects the event", ({ Given, Then, And }) => {
-    Given("the user is on the create event page", () => {
-      // rendered in the next step, with the error from the fake backend
-    });
+    Given("the user is on the create event page", () => {});
 
     And(
       'the backend answers with the error "lat must not be greater than 90"',

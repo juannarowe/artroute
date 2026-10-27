@@ -8,7 +8,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useUpdateProfile } from "@/hooks/useUpdateProfile";
 import { Profile } from "./Profile";
 
-// Replace the hooks with fakes: no Firebase and no backend in the tests
 vi.mock("@/hooks/useAuth");
 vi.mock("@/hooks/useCurrentUser");
 vi.mock("@/hooks/useUpdateProfile");
@@ -72,7 +71,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   );
 
   Scenario("The user changes their name", ({ Given, When, Then, And }) => {
-    // The fake's history is cleared between steps, so we save it in the "save" step
     let sentName: string | undefined;
 
     Given(

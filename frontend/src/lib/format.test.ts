@@ -14,11 +14,9 @@ describe("formatPrice", () => {
 
 describe("formatEventDate", () => {
   it("shows the weekday, day and month, then the time", () => {
-    // Midday UTC, so the day is the same in any European time zone
     const formatted = formatEventDate("2026-11-05T12:00:00.000Z");
 
     expect(formatted.startsWith("Thu 5 Nov")).toBe(true);
-    // Ends with " · HH:MM" (the hour depends on the computer's time zone)
     expect(formatted).toMatch(/ · \d{2}:\d{2}$/);
   });
 });

@@ -6,7 +6,6 @@ export function useUpdateProfile() {
 
   return useMutation({
     mutationFn: (name: string) => updateMyName(name),
-    // The profile (and the role in the nav) comes from ["currentUser"]: refresh it
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["currentUser"] });
     },

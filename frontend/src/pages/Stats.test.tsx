@@ -8,13 +8,10 @@ import { useEvents } from "@/hooks/useEvents";
 import type { ArtEvent, EventStatus } from "@/types/event";
 import { Stats } from "./Stats";
 
-// Fake hooks: no backend and no Firebase. useEventStats is NOT mocked:
-// it runs for real on top of these fakes, so its counting is tested too.
 vi.mock("@/hooks/useAuth");
 vi.mock("@/hooks/useCurrentUser");
 vi.mock("@/hooks/useEvents");
 
-// Recharts measures the page size with ResizeObserver, which jsdom doesn't have
 globalThis.ResizeObserver = class {
   observe() {}
   unobserve() {}
@@ -79,7 +76,6 @@ function renderStats() {
   );
 }
 
-// The number shown just above a label, e.g. "4" above "Going"
 function valueOf(label: string) {
   const totals = screen.getByRole("region", { name: "Totals" });
   return within(totals).getByText(label).previousElementSibling?.textContent;
@@ -119,9 +115,9 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
         },
       );
       And('the most popular event is "Blue Hours"', () => {
-        const firstPlace = screen.getAllByRole("listitem").find((item) =>
-          item.textContent?.startsWith("1."),
-        );
+        const firstPlace = screen
+          .getAllByRole("listitem")
+          .find((item) => item.textContent?.startsWith("1."));
         expect(firstPlace).toHaveTextContent("1. Blue Hours");
       });
     },

@@ -6,7 +6,6 @@ import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMyEvents } from "@/hooks/useMyEvents";
 import { BottomNav } from "./BottomNav";
 
-// Fake hooks: no backend and no Firebase
 vi.mock("@/hooks/useCurrentUser");
 vi.mock("@/hooks/useMyEvents");
 
@@ -17,7 +16,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
     cleanup();
   });
 
-  // The 3 scenarios have the same steps, only the values change
   function defineSteps(
     Given: (text: string, step: () => void) => void,
     When: (text: string, step: () => void) => void,

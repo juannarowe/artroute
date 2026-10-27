@@ -23,7 +23,7 @@ import { UpdateStatusDto } from './dto/update-status.dto';
 export class EventsController {
   constructor(private eventsService: EventsService) {}
 
-  @Get() // GET /events
+  @Get()
   findAll(
     @Query('status') status?: EventStatus,
     @Query('owner') owner?: string,
@@ -31,19 +31,19 @@ export class EventsController {
     return this.eventsService.findAll(status, owner);
   }
 
-  @Get(':id') // GET /events/123
+  @Get(':id')
   findOne(@Param('id') id: string) {
     return this.eventsService.findOne(id);
   }
 
   @Post()
-  @UseGuards(FirebaseAuthGuard) // only logged-in users can create events
+  @UseGuards(FirebaseAuthGuard)
   create(@Body() createEventDto: CreateEventDto, @Req() request: AuthRequest) {
     return this.eventsService.create(createEventDto, request.user.uid);
   }
 
-  @Patch(':id') // PATCH /events/123
-  @UseGuards(FirebaseAuthGuard) // only logged-in users can update events
+  @Patch(':id')
+  @UseGuards(FirebaseAuthGuard)
   update(
     @Param('id') id: string,
     @Body() updateEventDto: UpdateEventDto,
@@ -52,24 +52,24 @@ export class EventsController {
     return this.eventsService.update(id, updateEventDto, request.user);
   }
 
-  @Delete(':id') // DELETE /events/123
-  @UseGuards(FirebaseAuthGuard) // only logged-in users can delete events
-  @HttpCode(204) // success, nothing to send back
+  @Delete(':id')
+  @UseGuards(FirebaseAuthGuard)
+  @HttpCode(204)
   remove(@Param('id') id: string, @Req() request: AuthRequest) {
     return this.eventsService.remove(id, request.user);
   }
 
-  @Post(':id/go') // POST /events/123/go
-  @UseGuards(FirebaseAuthGuard) // only logged-in users
+  @Post(':id/go')
+  @UseGuards(FirebaseAuthGuard)
   toggleGo(@Param('id') id: string, @Req() request: AuthRequest) {
     return this.eventsService.toggleGo(id, request.user.uid);
   }
 
-  @Patch(':id/status') // PATCH /events/123/status
+  @Patch(':id/status')
   @UseGuards(FirebaseAuthGuard)
   updateStatus(
     @Param('id') id: string,
-    @Body() updateStatusDto: UpdateStatusDto, // ⚠️ normal import, NOT "import type"
+    @Body() updateStatusDto: UpdateStatusDto,
     @Req() request: AuthRequest,
   ) {
     return this.eventsService.updateStatus(id, updateStatusDto, request.user);
