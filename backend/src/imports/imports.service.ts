@@ -3,7 +3,7 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Event } from '../events/schema/events.schema';
 import type { AuthUser } from '../auth/firebase-auth.guard';
-import { fetchUpcomingOpenings } from './graf-api';
+import { fetchUpcomingOpenings, parseBarcelonaTime } from './graf-api';
 import { decodeHtml, fetchEventPage } from './event-page';
 import { extractEventDetails } from './gemini';
 import { geocodeAddress } from './geocode';
@@ -66,7 +66,7 @@ export class ImportsService {
         address: details.address,
         lat: coordinates.lat,
         lng: coordinates.lng,
-        date: new Date(opening.start),
+        date: parseBarcelonaTime(opening.start),
         category: details.category,
         description: details.description,
         price: details.price,
