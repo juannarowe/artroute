@@ -15,6 +15,8 @@ import { useEvents } from "@/hooks/useEvents";
 import { useUpdateStatus } from "@/hooks/useUpdateStatus";
 import { formatEventDate } from "@/lib/format";
 import { PageMessage } from "@/components/PageMessage";
+import { ImportPanel } from "@/components/ImportPanel";
+import { useImportArtBarcelona } from "@/hooks/useImportArtBarcelona";
 
 // Admin panel: approve or reject pending events, and see every event.
 export function ManageEvents() {
@@ -22,6 +24,7 @@ export function ManageEvents() {
   const pendingQuery = useEvents({ status: "pending" });
   const allQuery = useEvents();
   const updateStatusMutation = useUpdateStatus();
+  const importMutation = useImportArtBarcelona();
 
   if (pendingQuery.isLoading || allQuery.isLoading) {
     return <PageMessage variant="loading">Loading events...</PageMessage>;
@@ -36,6 +39,13 @@ export function ManageEvents() {
   return (
     <div className="flex flex-col gap-6">
       <PageTitle>Manage Events</PageTitle>
+
+      <ImportPanel
+        isImporting={importMutation.isPending}
+        result={importMutation.data}
+        errorMessage={importMutation.error?.message}
+        onImport={() => importMutation.mutate()}
+      />
 
       {updateStatusMutation.isError && (
         <p role="alert" className="text-sm text-destructive">
