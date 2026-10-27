@@ -30,11 +30,11 @@ export default function App() {
         <Route path="/events" element={<Events />} />
         <Route path="/events/:id" element={<EventDetail />} />
         <Route path="/map" element={<MapPage />} />
-        <Route path="/stats" element={<Stats />} />
 
         {/* Logged-in users only */}
         <Route element={<ProtectedRoute />}>
           <Route path="/calendar" element={<Calendar />} />
+          <Route path="/stats" element={<Stats />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/my-events" element={<MyEvents />} />
           <Route path="/events/new" element={<CreateEvent />} />

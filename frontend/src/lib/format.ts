@@ -20,3 +20,8 @@ export function formatPrice(price: number): string {
   }
   return `${price.toFixed(2)} €`;
 }
+
+// "mixed media" → "Mixed media" (the database keeps categories in lowercase)
+export function formatCategory(category: string): string {
+  return category.charAt(0).toUpperCase() + category.slice(1);
+}

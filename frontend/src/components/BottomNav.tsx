@@ -8,25 +8,42 @@ import {
   ShieldCheck,
 } from "lucide-react";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
+import { useMyEvents } from "@/hooks/useMyEvents";
 
 // One entry per nav item, so the JSX below is written only once.
+// "onlyFor": items that not everybody sees.
 const navItems = [
   { to: "/events", label: "Events", icon: LayoutList },
   { to: "/map", label: "Map", icon: MapIcon },
   { to: "/calendar", label: "Calendar", icon: CalendarDays },
-  { to: "/stats", label: "Stats", icon: ChartColumn },
+  { to: "/stats", label: "Stats", icon: ChartColumn, onlyFor: "creators" },
   { to: "/profile", label: "Profile", icon: User },
+  {
+    to: "/manage-events",
+    label: "Manage",
+    icon: ShieldCheck,
+    onlyFor: "admins",
+  },
 ];
 
 export function BottomNav() {
   const { data: currentUser } = useCurrentUser();
+  // Same cache as My Events (no extra request); empty when logged out
+  const { data: myEvents } = useMyEvents();
+
   const isAdmin = currentUser?.role === "admin";
-  const visibleItems = isAdmin
-    ? [
-        ...navItems,
-        { to: "/manage-events", label: "Manage", icon: ShieldCheck },
-      ]
-    : navItems;
+  // Stats: admins and users who created at least one event
+  const canSeeStats = isAdmin || (myEvents ?? []).length > 0;
+
+  const visibleItems = navItems.filter((item) => {
+    if (item.onlyFor === "admins") {
+      return isAdmin;
+    }
+    if (item.onlyFor === "creators") {
+      return canSeeStats;
+    }
+    return true;
+  });
 
   return (
     <nav
