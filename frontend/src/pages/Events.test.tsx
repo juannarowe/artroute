@@ -5,6 +5,7 @@ import { MemoryRouter } from "react-router-dom";
 import { expect, vi } from "vitest";
 import { useAuth } from "@/hooks/useAuth";
 import { useEvents } from "@/hooks/useEvents";
+import { useToggleGo } from "@/hooks/useToggleGo";
 import type { ArtEvent } from "@/types/event";
 import { Events } from "./Events";
 
@@ -13,6 +14,12 @@ import { Events } from "./Events";
 // it runs for real on top of the mocked useEvents.
 vi.mock("@/hooks/useAuth");
 vi.mock("@/hooks/useEvents");
+vi.mock("@/hooks/useToggleGo");
+const toggleGo = vi.fn();
+vi.mocked(useToggleGo).mockReturnValue({
+  mutate: toggleGo,
+  isPending: false,
+} as unknown as ReturnType<typeof useToggleGo>);
 
 const feature = await loadFeature("./events-page.feature");
 
@@ -72,6 +79,7 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   // Clean the page after each scenario (not after each step)
   AfterEachScenario(() => {
     cleanup();
+    toggleGo.mockClear();
   });
 
   Scenario(
@@ -93,6 +101,9 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
       And("each event links to its detail page", () => {
         const firstCard = screen.getByRole("link", { name: /Light & Shadow/ });
         expect(firstCard).toHaveAttribute("href", "/events/event-1");
+      });
+      And("each card says when the opening is", () => {
+        expect(screen.getAllByText(/^Opening on Thu 5 Nov/)).toHaveLength(2);
       });
     },
   );
@@ -158,6 +169,50 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
           ).toBeInTheDocument();
         },
       );
+    },
+  );
+
+  Scenario(
+    "A logged-out visitor sees no Go buttons on the cards",
+    ({ Given, When, Then, And }) => {
+      Given("there are 2 published events", () => {
+        mockPublishedEvents(twoEvents);
+      });
+      And("the visitor is logged out", () => {
+        mockLoggedIn(false);
+      });
+      When("the visitor opens the events page", () => {
+        renderEventsPage();
+      });
+      Then("there are no Go buttons", () => {
+        expect(screen.queryByRole("button", { name: "Go" })).toBeNull();
+      });
+    },
+  );
+
+  Scenario(
+    "A logged-in user marks Go from a card",
+    ({ Given, When, Then, And }) => {
+      // The fake's history is cleared between steps, so we save it in the click step
+      let markedEventId: string | undefined;
+
+      Given("there are 2 published events", () => {
+        mockPublishedEvents(twoEvents);
+      });
+      And("the visitor is logged in", () => {
+        mockLoggedIn(true);
+      });
+      When("the visitor opens the events page", () => {
+        renderEventsPage();
+      });
+      And("they click Go on the first card", async () => {
+        const goButtons = screen.getAllByRole("button", { name: "Go" });
+        await userEvent.click(goButtons[0]);
+        markedEventId = toggleGo.mock.calls[0]?.[0];
+      });
+      Then('the event "event-1" is marked as Go', () => {
+        expect(markedEventId).toBe("event-1");
+      });
     },
   );
 });

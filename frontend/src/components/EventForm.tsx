@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { EVENT_CATEGORIES } from "@/lib/categories";
+import { formatCategory } from "@/lib/format";
 import type { CreateEventInput } from "@/types/event";
 
 // "Dumb" form: it only collects and checks the values, then gives them
@@ -154,7 +155,7 @@ export function EventForm({
           >
             {EVENT_CATEGORIES.map((category) => (
               <option key={category} value={category}>
-                {category}
+                {formatCategory(category)}
               </option>
             ))}
           </select>
