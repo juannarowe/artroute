@@ -13,15 +13,27 @@ Final project of the Front-End Development bootcamp — IT Academy (Barcelona Ac
 > The API runs on Render's free plan: after 15 minutes without use it goes to
 > sleep, so the first request can take up to ~50 seconds.
 
+## Screenshots
+
+Mobile view (iPhone 12 Pro), logged in as an admin.
+
+| <img src="docs/screenshots/events.png" alt="Events: cards with Go" width="250"> | <img src="docs/screenshots/events-going.png" alt="Going tab" width="250"> | <img src="docs/screenshots/event-detail.png" alt="Event detail" width="250"> |
+|:---:|:---:|:---:|
+| Events: cards with Go | Going tab | Event detail |
+| <img src="docs/screenshots/map.png" alt="Map: filled pins = going" width="250"> | <img src="docs/screenshots/calendar.png" alt="Calendar" width="250"> | <img src="docs/screenshots/create-event.png" alt="Create an event" width="250"> |
+| Map: filled pins = going | Calendar | Create an event |
+| <img src="docs/screenshots/stats.png" alt="Stats: totals" width="250"> | <img src="docs/screenshots/stats-charts.png" alt="Stats: charts and ranking" width="250"> | <img src="docs/screenshots/manage.png" alt="Admin: AI import and review" width="250"> |
+| Stats: totals | Stats: charts and ranking | Admin: AI import and review |
+
 ---
 
 ## Features
 
 | Who | What they can do |
 |---|---|
-| **Visitor** | Browse published events as cards, open an event's detail page, see them on the **map** and in the **statistics** panel |
-| **Logged-in user** | Register / log in (email + password or Google), mark **Go / Going** on events, see the **Going** tab, the **calendar**, **create events** (they start as *pending*) and follow them in **My Events** (status badges, rejection note) |
-| **Admin** | **Manage Events** panel: approve or reject pending events (with an optional note), see every event with its status and **import openings from ArtBarcelona with AI** (they arrive as *pending*) |
+| **Visitor** | Browse published events as cards, open an event's detail page and see them on the **map** |
+| **Logged-in user** | Register / log in (email + password or Google), mark **Go / Going** on events, see the **Going** tab, the **calendar**, **create events** (they start as *pending*), follow them in **My Events** (status badges, rejection note) and see the **stats** of their events |
+| **Admin** | **Manage Events** panel: approve or reject pending events (with an optional note), see every event with its status, the **stats** of every event and **import openings from ArtBarcelona with AI** (they arrive as *pending*) |
 
 The same data stays **in sync** everywhere: approving an event makes it appear
 on the list, the map, the calendar and the charts at once, without reloading.
