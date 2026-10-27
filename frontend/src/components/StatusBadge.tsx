@@ -1,13 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { STATUS_LABELS } from "@/lib/status";
 import type { EventStatus } from "@/types/event";
 
-// Text and badge style for each status, in one place
-const statusLabels: Record<EventStatus, string> = {
-  pending: "Pending review",
-  published: "Published",
-  rejected: "Rejected",
-};
-
+// Badge style for each status (the texts live in lib/status.ts)
 const statusVariants: Record<
   EventStatus,
   "secondary" | "default" | "destructive"
@@ -18,5 +13,5 @@ const statusVariants: Record<
 };
 
 export function StatusBadge({ status }: { status: EventStatus }) {
-  return <Badge variant={statusVariants[status]}>{statusLabels[status]}</Badge>;
+  return <Badge variant={statusVariants[status]}>{STATUS_LABELS[status]}</Badge>;
 }
