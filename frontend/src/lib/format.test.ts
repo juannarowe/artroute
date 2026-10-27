@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { formatEventDate, formatPrice } from "./format";
+import { formatCategory, formatEventDate, formatPrice } from "./format";
 
 describe("formatPrice", () => {
   it("shows Free when the price is 0", () => {
@@ -20,5 +20,12 @@ describe("formatEventDate", () => {
     expect(formatted.startsWith("Thu 5 Nov")).toBe(true);
     // Ends with " · HH:MM" (the hour depends on the computer's time zone)
     expect(formatted).toMatch(/ · \d{2}:\d{2}$/);
+  });
+});
+
+describe("formatCategory", () => {
+  it("starts the category with a capital letter", () => {
+    expect(formatCategory("painting")).toBe("Painting");
+    expect(formatCategory("mixed media")).toBe("Mixed media");
   });
 });

@@ -1,10 +1,10 @@
 import { useParams, Link } from "react-router-dom";
 import { PageTitle } from "@/components/PageTitle";
 import { useEvent } from "@/hooks/useEvent";
-import { formatEventDate, formatPrice } from "@/lib/format";
+import { formatCategory, formatEventDate, formatPrice } from "@/lib/format";
 import { useAuth } from "@/hooks/useAuth";
 import { useToggleGo } from "@/hooks/useToggleGo";
-import { Button } from "@/components/ui/button";
+import { GoButton } from "@/components/GoButton";
 import { PageMessage } from "@/components/PageMessage";
 
 export function EventDetail() {
@@ -38,9 +38,9 @@ export function EventDetail() {
       <div className="text-sm text-muted-foreground">
         <p>{event.venue}</p>
         <p>{event.address}</p>
-        <p>{formatEventDate(event.date)}</p>
+        <p>Opening on {formatEventDate(event.date)}</p>
         <p>
-          {event.category} · {formatPrice(event.price)}
+          {formatCategory(event.category)} · {formatPrice(event.price)}
         </p>
       </div>
 
@@ -60,13 +60,11 @@ export function EventDetail() {
       <p className="text-sm">{event.attendees.length} going</p>
 
       {user ? (
-        <Button
-          variant={isGoing ? "outline" : "default"}
+        <GoButton
+          isGoing={isGoing}
           disabled={toggleGoMutation.isPending}
           onClick={() => toggleGoMutation.mutate(event._id)}
-        >
-          {isGoing ? "Going" : "Go"}
-        </Button>
+        />
       ) : (
         <p className="text-sm text-muted-foreground">
           <Link to="/login" className="underline">
