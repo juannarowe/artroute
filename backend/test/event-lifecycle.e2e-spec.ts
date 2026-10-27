@@ -65,7 +65,7 @@ defineFeature(feature, (test) => {
         }),
         MongooseModule.forRoot(mongo.getUri(), {
           runtimeAdapters: { os },
-        } as ConnectOptions),
+        }),
         EventsModule,
         UsersModule,
       ],
