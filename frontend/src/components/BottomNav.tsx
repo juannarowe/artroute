@@ -46,9 +46,10 @@ export function BottomNav() {
   });
 
   return (
+    // z-50: the nav always stays above the page (e.g. the Go buttons, which use z-10)
     <nav
       aria-label="Main navigation"
-      className="fixed inset-x-0 bottom-0 border-t bg-background"
+      className="fixed inset-x-0 bottom-0 z-50 border-t bg-background"
     >
       <ul className="mx-auto flex max-w-md justify-around">
         {visibleItems.map((item) => {
