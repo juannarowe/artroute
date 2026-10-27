@@ -38,7 +38,6 @@ export class Event {
   @Prop({ required: false, trim: true })
   externalLink?: string;
 
-  // Firebase uid of the owner, set by the backend from the auth token.
   @Prop({ required: true, trim: true })
   createdBy: string;
 

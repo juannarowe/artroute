@@ -13,7 +13,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
 
   Scenario("The admin starts an import", ({ Given, When, Then }) => {
     const onImport = vi.fn();
-    // The fake's history is cleared between steps, so we save it in the click step
     let importCalls = 0;
 
     Given("the import panel is ready", () => {

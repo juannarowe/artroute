@@ -16,7 +16,6 @@ export function EventDetail() {
   if (isLoading) {
     return <PageMessage variant="loading">Loading event...</PageMessage>;
   }
-  // The backend answers 404 for unknown or invalid ids → apiFetch throws → isError
   if (isError || !event) {
     return <PageMessage variant="info">Event not found.</PageMessage>;
   }

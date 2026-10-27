@@ -25,7 +25,7 @@ export function Register() {
   const navigate = useNavigate();
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // stops the browser from reloading the page
+    event.preventDefault();
     setError(null);
     setIsSubmitting(true);
 

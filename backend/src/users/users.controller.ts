@@ -8,13 +8,13 @@ import { UpdateMeDto } from './dto/update-me.dto';
 export class UsersController {
   constructor(private userService: UsersService) {}
 
-  @Get('me') // GET /users/me
+  @Get('me')
   @UseGuards(FirebaseAuthGuard)
   getMe(@Req() request: AuthRequest) {
     return this.userService.findOrCreate(request.user.uid);
   }
 
-  @Patch('me') // PATCH /users/me — the user can only change their OWN profile
+  @Patch('me')
   @UseGuards(FirebaseAuthGuard)
   updateMe(@Body() updateMeDto: UpdateMeDto, @Req() request: AuthRequest) {
     return this.userService.updateName(request.user.uid, updateMeDto.name);

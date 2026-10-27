@@ -10,14 +10,11 @@ import { ImportsModule } from './imports/imports.module';
 
 @Module({
   imports: [
-    // Reads backend/.env and makes the values available in the whole app
     ConfigModule.forRoot({ isGlobal: true }),
 
-    // "Async" because it has to wait for ConfigModule to read MONGODB_URI
     MongooseModule.forRootAsync({
       inject: [ConfigService],
       useFactory: (configService: ConfigService) => ({
-        // getOrThrow: the app stops with a clear error if the variable is missing
         uri: configService.getOrThrow<string>('MONGODB_URI'),
         onConnectionCreate: (connection: Connection) => {
           const logger = new Logger('MongoDB');

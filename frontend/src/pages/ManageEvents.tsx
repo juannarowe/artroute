@@ -18,9 +18,7 @@ import { PageMessage } from "@/components/PageMessage";
 import { ImportPanel } from "@/components/ImportPanel";
 import { useImportArtBarcelona } from "@/hooks/useImportArtBarcelona";
 
-// Admin panel: approve or reject pending events, and see every event.
 export function ManageEvents() {
-  // Two lists from the backend: the pending ones, and all events (any status)
   const pendingQuery = useEvents({ status: "pending" });
   const allQuery = useEvents();
   const updateStatusMutation = useUpdateStatus();
@@ -101,7 +99,6 @@ export function ManageEvents() {
                         onConfirm={(note) =>
                           updateStatusMutation.mutate({
                             eventId: event._id,
-                            // An empty note is not sent
                             input: {
                               status: "rejected",
                               rejectionNote: note || undefined,

@@ -6,7 +6,6 @@ import { useMyEvents } from "@/hooks/useMyEvents";
 import type { ArtEvent, EventStatus } from "@/types/event";
 import { MyEvents } from "./MyEvents";
 
-// The page gets the user's events from useMyEvents. We replace it with a fake.
 vi.mock("@/hooks/useMyEvents");
 
 const feature = await loadFeature("./my-events.feature");

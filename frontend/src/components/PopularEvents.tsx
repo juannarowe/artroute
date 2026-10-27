@@ -6,7 +6,6 @@ interface PopularEventsProps {
   events: ArtEvent[];
 }
 
-// Ranking of the events with the most "Go" marks
 export function PopularEvents({ events }: PopularEventsProps) {
   return (
     <Card>

@@ -11,7 +11,6 @@ import { getAuth } from 'firebase-admin/auth';
 import { UsersService } from '../users/users.service';
 import type { UserRole } from '../users/schemas/user.schema';
 
-// What the guard adds to every request it lets through
 export interface AuthUser {
   uid: string;
   email?: string;
@@ -28,8 +27,6 @@ export class FirebaseAuthGuard implements CanActivate {
     configService: ConfigService,
     private usersService: UsersService,
   ) {
-    // Start firebase-admin only once, even if the guard is created many times.
-    // Verifying tokens only needs the project id (no secret keys).
     if (getApps().length === 0) {
       initializeApp({
         projectId: configService.getOrThrow<string>('FIREBASE_PROJECT_ID'),
@@ -37,12 +34,10 @@ export class FirebaseAuthGuard implements CanActivate {
     }
   }
 
-  // Runs BEFORE the controller. Returning true lets the request through.
   async canActivate(context: ExecutionContext): Promise<boolean> {
     const request = context.switchToHttp().getRequest<AuthRequest>();
     const header = request.headers.authorization;
 
-    // Expected format: "Bearer <token>"
     if (!header || !header.startsWith('Bearer ')) {
       throw new UnauthorizedException('Missing auth token');
     }

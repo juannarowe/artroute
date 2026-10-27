@@ -9,15 +9,12 @@ import { fetchEventPage } from './event-page';
 import { extractEventDetails } from './gemini';
 import { geocodeAddress } from './geocode';
 
-// Replace the internet calls with fakes: no GRAF, no Gemini, no OpenStreetMap
-// Keep the real parseBarcelonaTime, fake only the GRAF download
 jest.mock('./graf-api', () => ({
   ...jest.requireActual<typeof import('./graf-api')>('./graf-api'),
   fetchUpcomingOpenings: jest.fn(),
 }));
 jest.mock('./gemini');
 jest.mock('./geocode');
-// Keep the real decodeHtml, fake only the page download
 jest.mock('./event-page', () => ({
   ...jest.requireActual<typeof import('./event-page')>('./event-page'),
   fetchEventPage: jest.fn(),
@@ -27,7 +24,6 @@ const feature = loadFeature('./artbarcelona-import.feature', {
   loadRelativePath: true,
 });
 
-// A fake GRAF opening number "n"
 function createOpening(n: number): GrafEvent {
   return {
     link: `https://graf.cat/events/event/opening-${n}/`,
@@ -47,7 +43,6 @@ function givenOpenings(count: number) {
   jest.mocked(fetchUpcomingOpenings).mockResolvedValue(openings);
 }
 
-// The AI and the map work for every opening
 function givenEverythingWorks() {
   jest.mocked(fetchEventPage).mockResolvedValue({ text: 'Lloc: ...' });
   jest.mocked(extractEventDetails).mockResolvedValue({
@@ -59,7 +54,6 @@ function givenEverythingWorks() {
   jest.mocked(geocodeAddress).mockResolvedValue({ lat: 41.39, lng: 2.17 });
 }
 
-// A fake Mongoose model: findOne(...).exec() says if the event already exists
 function createFakeModel(alreadyImported: boolean) {
   return {
     findOne: jest.fn().mockReturnValue({
@@ -178,11 +172,9 @@ defineFeature(feature, (test) => {
       fakeModel = createFakeModel(false);
     });
     and('the AI cannot read the first opening', () => {
-      // First call: Gemini fails. Second call: the normal details.
       jest.mocked(extractEventDetails).mockResolvedValueOnce(null);
     });
     and('the address of the second opening is not found on the map', () => {
-      // Only the second opening reaches the map step
       jest.mocked(geocodeAddress).mockResolvedValueOnce(null);
     });
     when(
