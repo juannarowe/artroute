@@ -7,16 +7,12 @@ import { EVENT_CATEGORIES } from "@/lib/categories";
 import { formatCategory } from "@/lib/format";
 import type { CreateEventInput } from "@/types/event";
 
-// "Dumb" form: it only collects and checks the values, then gives them
-// to the parent through onSubmit. It never talks to the backend.
 interface EventFormProps {
   onSubmit: (values: CreateEventInput) => void;
   isSubmitting: boolean;
   errorMessage?: string;
 }
 
-// Inputs always hold text, so every field starts as a string.
-// We convert numbers and the date only when the form is submitted.
 const emptyForm = {
   title: "",
   venue: "",
@@ -40,13 +36,12 @@ export function EventForm({
 }: EventFormProps) {
   const [values, setValues] = useState<FormValues>(emptyForm);
 
-  // One function for every field: copy the old values and replace one field
   function updateField(field: keyof FormValues, value: string) {
     setValues({ ...values, [field]: value });
   }
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // stops the browser from reloading the page
+    event.preventDefault();
 
     onSubmit({
       title: values.title,
@@ -54,13 +49,10 @@ export function EventForm({
       address: values.address,
       lat: Number(values.lat),
       lng: Number(values.lng),
-      // "2026-11-05T19:00" (local time) → ISO string with the time zone
       date: new Date(values.date).toISOString(),
       category: values.category,
       description: values.description,
       price: Number(values.price),
-      // Optional fields: send them only when filled in. An empty string
-      // would fail the backend URL validation.
       image: values.image || undefined,
       externalLink: values.externalLink || undefined,
     });

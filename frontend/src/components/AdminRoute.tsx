@@ -3,11 +3,6 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { PageMessage } from "@/components/PageMessage";
 
-// Layout route for admin pages (same idea as ProtectedRoute, one step more):
-// 1. not logged in → login page
-// 2. logged in but not admin → "access denied"
-// 3. admin → show the page
-// This is only UX: the backend checks the role again on every request.
 export function AdminRoute() {
   const { user, loading } = useAuth();
   const { data: currentUser, isLoading: isLoadingRole } = useCurrentUser();

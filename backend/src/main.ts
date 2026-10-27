@@ -10,8 +10,8 @@ async function bootstrap() {
 
   app.useGlobalPipes(
     new ValidationPipe({
-      whitelist: true, // remove fields that are not in the DTO
-      forbidNonWhitelisted: true, // and answer 400 if someone sends them
+      whitelist: true,
+      forbidNonWhitelisted: true,
     }),
   );
   await app.listen(process.env.PORT ?? 3000);

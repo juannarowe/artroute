@@ -3,7 +3,6 @@ import { useAuth } from "./useAuth";
 import { useEvents } from "./useEvents";
 import type { MapPin } from "@/types/map";
 
-// No fetch: turns the cached published events into map pins
 export function useMapPins() {
   const { user } = useAuth();
   const {

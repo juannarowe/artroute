@@ -22,8 +22,6 @@ export function Profile() {
     );
   }
 
-  // No navigate() needed after logout: `user` becomes null and
-  // ProtectedRoute redirects to /login on its own.
   return (
     <div className="flex flex-col items-start gap-6">
       <PageTitle>Profile</PageTitle>

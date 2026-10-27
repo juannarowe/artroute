@@ -31,12 +31,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   };
 
   const register = async (name: string, email: string, password: string) => {
-    // 1. Create the account in Firebase (this also logs the user in)
-    const credential = await createUserWithEmailAndPassword(auth, email, password);
-    // 2. Save the name in the Firebase profile
+    const credential = await createUserWithEmailAndPassword(
+      auth,
+      email,
+      password,
+    );
     await updateProfile(credential.user, { displayName: name });
-    // 3. Get a fresh token that includes the name. The backend creates the
-    //    user in MongoDB (with this name) on the first request (GET /users/me).
     await credential.user.getIdToken(true);
   };
 
@@ -46,7 +46,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   const logout = async () => {
     await signOut(auth);
-    queryClient.clear(); // the next user must not see the previous user's data
+    queryClient.clear();
   };
 
   return (

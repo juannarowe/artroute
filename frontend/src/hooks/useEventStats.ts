@@ -6,7 +6,6 @@ import { countByLabel } from "@/lib/stats";
 import { formatCategory } from "@/lib/format";
 import { STATUS_LABELS } from "@/lib/status";
 
-// How many events appear in "Most popular"
 const POPULAR_EVENTS_LIMIT = 5;
 
 export function useEventStats() {
@@ -14,8 +13,6 @@ export function useEventStats() {
   const { data: currentUser, isLoading: isLoadingRole } = useCurrentUser();
   const isAdmin = currentUser?.role === "admin";
 
-  // Admin: every event of the app. Other users: only the events they created.
-  // (Same cache as the Manage page and My Events: no extra requests.)
   const filters = isAdmin ? {} : { owner: user?.uid };
   const { data: events, isLoading, isError } = useEvents(filters);
 
@@ -28,14 +25,11 @@ export function useEventStats() {
       (event) => event.status === "pending",
     );
 
-    // Total "Go" marks on the published events
     let totalGoing = 0;
     for (const event of publishedEvents) {
       totalGoing += event.attendees.length;
     }
 
-    // [...list] makes a copy first: sort() changes the list it sorts,
-    // and we must never change React Query's cached data.
     const popularEvents = [...publishedEvents]
       .filter((event) => event.attendees.length > 0)
       .sort((a, b) => b.attendees.length - a.attendees.length)

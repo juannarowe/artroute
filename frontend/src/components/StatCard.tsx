@@ -5,7 +5,6 @@ interface StatCardProps {
   value: number;
 }
 
-// One big number with its name, e.g. "12 · Published"
 export function StatCard({ label, value }: StatCardProps) {
   return (
     <Card>

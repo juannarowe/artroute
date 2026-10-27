@@ -9,7 +9,6 @@ interface ProfileFormProps {
   onSave: (name: string) => void;
 }
 
-// "Dumb" form: it only keeps what the user types and gives it to the parent.
 export function ProfileForm({
   initialName,
   isSaving,
@@ -18,7 +17,7 @@ export function ProfileForm({
   const [name, setName] = useState(initialName);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault(); // stops the browser from reloading the page
+    event.preventDefault();
     onSave(name);
   }
 

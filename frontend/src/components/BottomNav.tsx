@@ -10,8 +10,6 @@ import {
 import { useCurrentUser } from "@/hooks/useCurrentUser";
 import { useMyEvents } from "@/hooks/useMyEvents";
 
-// One entry per nav item, so the JSX below is written only once.
-// "onlyFor": items that not everybody sees.
 const navItems = [
   { to: "/events", label: "Events", icon: LayoutList },
   { to: "/map", label: "Map", icon: MapIcon },
@@ -28,11 +26,9 @@ const navItems = [
 
 export function BottomNav() {
   const { data: currentUser } = useCurrentUser();
-  // Same cache as My Events (no extra request); empty when logged out
   const { data: myEvents } = useMyEvents();
 
   const isAdmin = currentUser?.role === "admin";
-  // Stats: admins and users who created at least one event
   const canSeeStats = isAdmin || (myEvents ?? []).length > 0;
 
   const visibleItems = navItems.filter((item) => {
@@ -46,7 +42,6 @@ export function BottomNav() {
   });
 
   return (
-    // z-50: the nav always stays above the page (e.g. the Go buttons, which use z-10)
     <nav
       aria-label="Main navigation"
       className="fixed inset-x-0 bottom-0 z-50 border-t bg-background"
@@ -57,7 +52,6 @@ export function BottomNav() {
 
           return (
             <li key={item.to}>
-              {/* NavLink knows if its page is open (isActive) and adds aria-current="page" */}
               <NavLink
                 to={item.to}
                 className={({ isActive }) =>

@@ -6,10 +6,8 @@ import { Event, EventStatus } from './schema/events.schema';
 
 const feature = loadFeature('./event-go.feature', { loadRelativePath: true });
 
-// A valid MongoDB ObjectId (24 hex characters) for the fake event
 const EVENT_ID = '6702f1c4a9b3e5d7f8a1b2c3';
 
-// A fake event: the status, the attendees list and a fake save()
 function createFakeEvent(status: EventStatus, attendees: string[]) {
   return {
     status,
@@ -18,7 +16,6 @@ function createFakeEvent(status: EventStatus, attendees: string[]) {
   };
 }
 
-// A fake Mongoose model: findById(id).exec() returns our fake event
 function createService(fakeEvent: ReturnType<typeof createFakeEvent>) {
   const fakeModel = {
     findById: jest.fn().mockReturnValue({
@@ -67,7 +64,6 @@ defineFeature(feature, (test) => {
 
     then(/^"(.*)" is not in the attendees$/, (uid: string) => {
       expect(fakeEvent.attendees).not.toContain(uid);
-      // Other attendees stay in the list
       expect(fakeEvent.attendees).toContain('user-bob');
     });
 

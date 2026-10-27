@@ -6,14 +6,11 @@ import { expect, vi } from "vitest";
 import { useAuth } from "@/hooks/useAuth";
 import { Register } from "./Register";
 
-// The page uses useAuth().register. We replace it with a fake, so no Firebase
-// account is created during the tests.
 vi.mock("@/hooks/useAuth");
 const register = vi.fn();
 
 const feature = await loadFeature("./register.feature");
 
-// The register page plus a fake "/events" page, to check the redirect
 function renderRegisterPage() {
   vi.mocked(useAuth).mockReturnValue({
     register,
@@ -36,20 +33,16 @@ async function fillInForm(name: string, email: string, password: string) {
 }
 
 describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
-  // Clean the page and the fake after each scenario (not after each step)
   AfterEachScenario(() => {
     cleanup();
     register.mockReset();
   });
 
   Scenario("A visitor creates an account", ({ Given, When, Then, And }) => {
-    // Each Gherkin step runs as its own test, and the fake's call history is
-    // cleared between them. So we save what register() received in the
-    // "submit" step and check it in the "Then" step.
     let registerArguments: unknown[] = [];
 
     Given("the visitor is on the register page", () => {
-      register.mockResolvedValue(undefined); // Firebase says: OK
+      register.mockResolvedValue(undefined);
       renderRegisterPage();
     });
     When('they fill in "Ana", "ana@test.dev" and "secret123"', async () => {
@@ -74,7 +67,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
       renderRegisterPage();
     });
     And('the email "ana@test.dev" is already registered', () => {
-      // Firebase answers with an error that has this code
       register.mockRejectedValue({ code: "auth/email-already-in-use" });
     });
     When('they fill in "Ana", "ana@test.dev" and "secret123"', async () => {

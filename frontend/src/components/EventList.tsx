@@ -5,7 +5,6 @@ interface EventListProps {
   events: ArtEvent[];
   emptyMessage: string;
   showStatus?: boolean;
-  // For the Go buttons (logged-in users only)
   userId?: string;
   isTogglingGo?: boolean;
   onToggleGo?: (eventId: string) => void;
@@ -28,7 +27,6 @@ export function EventList({
   }
 
   return (
-    // 1 column on mobile, 2 on tablet (md), 3 on desktop (lg)
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
       {events.map((event) => (
         <EventCard

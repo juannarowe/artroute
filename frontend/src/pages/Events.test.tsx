@@ -9,9 +9,6 @@ import { useToggleGo } from "@/hooks/useToggleGo";
 import type { ArtEvent } from "@/types/event";
 import { Events } from "./Events";
 
-// The page gets its data from hooks. In the test we replace (mock) the hooks,
-// so no backend and no Firebase are needed. useGoingEvents is NOT mocked:
-// it runs for real on top of the mocked useEvents.
 vi.mock("@/hooks/useAuth");
 vi.mock("@/hooks/useEvents");
 vi.mock("@/hooks/useToggleGo");
@@ -23,7 +20,6 @@ vi.mocked(useToggleGo).mockReturnValue({
 
 const feature = await loadFeature("./events-page.feature");
 
-// Builds a fake published event with only a title and an id
 function createEvent(id: string, title: string): ArtEvent {
   return {
     _id: id,
@@ -49,7 +45,6 @@ const twoEvents = [
   createEvent("event-2", "Blue Hours"),
 ];
 
-// What useEvents returns once the data has arrived
 function mockPublishedEvents(events: ArtEvent[]) {
   vi.mocked(useEvents).mockReturnValue({
     data: events,
@@ -58,7 +53,6 @@ function mockPublishedEvents(events: ArtEvent[]) {
   } as ReturnType<typeof useEvents>);
 }
 
-// What useAuth returns: a user object when logged in, null when logged out
 function mockLoggedIn(isLoggedIn: boolean) {
   vi.mocked(useAuth).mockReturnValue({
     user: isLoggedIn ? { uid: "user-ana" } : null,
@@ -66,7 +60,6 @@ function mockLoggedIn(isLoggedIn: boolean) {
   } as ReturnType<typeof useAuth>);
 }
 
-// <Link> needs a router, like in the NotFound test
 function renderEventsPage() {
   render(
     <MemoryRouter>
@@ -76,7 +69,6 @@ function renderEventsPage() {
 }
 
 describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
-  // Clean the page after each scenario (not after each step)
   AfterEachScenario(() => {
     cleanup();
     toggleGo.mockClear();
@@ -193,7 +185,6 @@ describeFeature(feature, ({ Scenario, AfterEachScenario }) => {
   Scenario(
     "A logged-in user marks Go from a card",
     ({ Given, When, Then, And }) => {
-      // The fake's history is cleared between steps, so we save it in the click step
       let markedEventId: string | undefined;
 
       Given("there are 2 published events", () => {

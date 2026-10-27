@@ -10,7 +10,6 @@ export function CreateEvent() {
 
   function handleSubmit(values: CreateEventInput) {
     createEventMutation.mutate(values, {
-      // After it worked: go to the new event's page
       onSuccess: (createdEvent) => {
         navigate(`/events/${createdEvent._id}`);
       },
