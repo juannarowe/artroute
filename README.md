@@ -432,8 +432,13 @@ always give the same result.
   register, create event, My Events, profile, import panel, NotFound page,
   date and price formatters
 
+- **Integration (5 tests, `npm run test:e2e`):** the real API (Firebase guard,
+  validation, controllers, services) with a real MongoDB in memory
+  (mongodb-memory-server): create → pending → admin publishes → Go, 401/400/403/204
+  answers. Only the Firebase token check is faked.
+
 ```bash
-cd backend && npm test
+cd backend && npm test && npm run test:e2e
 cd frontend && npm test
 ```
 
