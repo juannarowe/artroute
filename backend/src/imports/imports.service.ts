@@ -66,7 +66,7 @@ export class ImportsService {
         address: details.address,
         lat: coordinates.lat,
         lng: coordinates.lng,
-        date: new Date(opening.start),
+        date: parseBarcelonaTime(opening.start),
         category: details.category,
         description: details.description,
         price: details.price,

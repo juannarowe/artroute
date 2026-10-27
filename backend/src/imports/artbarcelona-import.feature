@@ -34,3 +34,9 @@ Feature: Import openings from ArtBarcelona
     When a user with role "user" runs the import
     Then the import is forbidden
     And no event is saved
+
+  Scenario: The opening time is read as Barcelona time
+    Given the agenda has an opening at "2026-10-29T18:30:00+02:00"
+    And the AI can read every opening
+    When a user with role "admin" runs the import
+    Then the event is saved at "2026-10-29T17:30:00.000Z"
