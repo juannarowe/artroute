@@ -21,7 +21,7 @@ Final project of the Front-End Development bootcamp — IT Academy (Barcelona Ac
 |---|---|
 | **Visitor** | Browse published events as cards, open an event's detail page, see them on the **map** and in the **statistics** panel |
 | **Logged-in user** | Register / log in (email + password or Google), mark **Go / Going** on events, see the **Going** tab, the **calendar**, **create events** (they start as *pending*) and follow them in **My Events** (status badges, rejection note) |
-| **Admin** | **Manage Events** panel: approve or reject pending events (with an optional note) and see every event with its status |
+| **Admin** | **Manage Events** panel: approve or reject pending events (with an optional note), see every event with its status and **import openings from ArtBarcelona with AI** (they arrive as *pending*) |
 
 The same data stays **in sync** everywhere: approving an event makes it appear
 on the list, the map, the calendar and the charts at once, without reloading.
@@ -43,6 +43,8 @@ on the list, the map, the calendar and the charts at once, without reloading.
 - firebase-admin (verifies the Firebase ID token on every write request)
 - class-validator DTOs + global `ValidationPipe`
 - Jest + jest-cucumber (Gherkin)
+
+**AI and open data:** Google Gemini API (free tier, structured JSON output) · GRAF / ArtBarcelona public agenda API · Nominatim (OpenStreetMap geocoding)
 
 **Deploy:** Vercel (frontend) · Render (backend) · MongoDB Atlas (database)
 
@@ -71,6 +73,7 @@ flowchart LR
   spa -- "HTTPS + Bearer token" --> api
   api -- "verify token" --> fbauth
   api -- "Mongoose" --> db
+  api -. "AI import" .-> ext["GRAF agenda · Gemini AI<br/>OpenStreetMap"]
 ```
 
 ### Frontend data flow
@@ -155,6 +158,7 @@ flowchart LR
 | PATCH | `/events/:id/status` | admin | Publish or reject (+ optional note) |
 | GET | `/users/me` | logged in | Current user and role (created on first login) |
 | PATCH | `/users/me` | logged in | Change your own name (role and email are not editable) |
+| POST | `/imports/artbarcelona` | admin | Import up to 10 upcoming openings with AI → `{ imported, skipped }` |
 
 ### Data model
 
@@ -188,6 +192,46 @@ erDiagram
     list attendees "Firebase uids"
   }
 ```
+
+### AI import of openings (ArtBarcelona)
+
+The galleries association of Barcelona (GRAF) publishes its agenda on
+[artbarcelona.es](https://www.artbarcelona.es/en/agenda/). An admin clicks
+**Import from ArtBarcelona** and the API turns the next openings into Art Route
+events. The AI never publishes on its own: every imported event is **pending**
+until an admin approves it (*human in the loop*).
+
+```mermaid
+%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+sequenceDiagram
+  actor A as Admin
+  participant API as NestJS API
+  participant GRAF as GRAF API
+  participant AI as Gemini
+  participant OSM as OpenStreetMap
+  participant DB as MongoDB
+  A->>API: POST /imports/artbarcelona
+  API->>GRAF: upcoming events
+  GRAF-->>API: keep "Inauguració", soonest first
+  loop each opening (max 10 per run)
+    API->>DB: already imported? (same externalLink)
+    API->>GRAF: event page → text in Catalan + image
+    API->>AI: text + JSON schema
+    AI-->>API: English description, category, address, price
+    API->>OSM: address
+    OSM-->>API: lat, lng
+    API->>DB: save · status pending · createdBy artbarcelona-import
+  end
+  API-->>A: imported 10 · skipped 0
+```
+
+- **Structured output:** Gemini must answer with a JSON schema, and the category
+  is an `enum` of our 6 categories, so the answer always fits the Event model.
+- **No duplicates:** an opening whose link is already saved (with any status) is
+  skipped, so the button can be clicked twice and rejected events never return.
+- **Safe failures:** if the AI or the map lookup fails, that opening is skipped;
+  the import never breaks.
+- **Free:** Gemini free tier, a public API and OpenStreetMap (1 request per second).
 
 ## Sitemap
 
@@ -229,6 +273,7 @@ flowchart TB
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 stateDiagram-v2
   [*] --> pending : user submits the form
+  [*] --> pending : AI import from ArtBarcelona
   pending --> published : admin approves
   pending --> rejected : admin rejects, with a note
   published --> [*]
@@ -300,6 +345,7 @@ artroute/
     └── src/
         ├── auth/         # FirebaseAuthGuard (+ Gherkin tests)
         ├── events/       # schema, DTOs, controller, service (+ Gherkin tests)
+        ├── imports/      # AI import from ArtBarcelona: GRAF API, Gemini, geocoding
         ├── users/        # user schema (role), GET /users/me
         └── seed/         # sample data + seed script
 ```
@@ -325,6 +371,8 @@ npm run start:dev      # http://localhost:3000
 | `PORT` | Port of the API (default 3000) |
 | `FRONTEND_URL` | Frontend origin allowed by CORS (`http://localhost:5173`) |
 | `FIREBASE_PROJECT_ID` | Firebase project id (to verify ID tokens) |
+| `GEMINI_API_KEY` | Google Gemini API key (free, [aistudio.google.com](https://aistudio.google.com)) for the AI import |
+| `GEMINI_MODEL` | Optional, default `gemini-flash-lite-latest` |
 
 ### 2. Frontend
 
@@ -341,7 +389,7 @@ npm run dev            # http://localhost:5173
 | `VITE_API_URL` | URL of the API (`http://localhost:3000`) |
 
 > `VITE_*` variables end up in the browser bundle, so they must never contain
-> secrets. The only secret (the MongoDB connection string) lives in the backend.
+> secrets. The secrets (MongoDB connection string, Gemini key) live in the backend.
 
 **Admin role:** every new user is a `user`. To make an admin, change `role` to
 `"admin"` in the `users` collection in MongoDB Atlas.
@@ -363,11 +411,14 @@ Unit tests with **Gherkin scenarios**: the `.feature` files are executable
 services (MongoDB, Firebase, the API) are mocked, so the tests are fast and
 always give the same result.
 
-- **Backend (16 tests):** event permissions (owner / other user / admin / invalid id),
+- **Backend (24 tests):** event permissions (owner / other user / admin / invalid id),
   auth guard (no token / invalid token / valid token + role), "Go" toggle,
-  admin approval (publish, reject with note, forbidden for users, invalid status)
-- **Frontend (34 tests):** events page (cards, empty state, Going tab logged in/out),
-  register (success, email already in use), NotFound page, date and price formatters
+  admin approval (publish, reject with note, forbidden for users, invalid status),
+  profile name, AI import (pending events, no duplicates, skipped failures,
+  max 10 per run, admins only — GRAF, Gemini and OpenStreetMap are mocked)
+- **Frontend (65 tests):** events page (cards, empty state, Going tab logged in/out),
+  register, create event, My Events, profile, import panel, NotFound page,
+  date and price formatters
 
 ```bash
 cd backend && npm test
@@ -384,7 +435,8 @@ cd frontend && npm test
 
 ## Next steps
 
-- Edit and resubmit a rejected event; edit personal profile data
+- Edit and resubmit a rejected event
+- Run the ArtBarcelona import automatically every week (scheduled job)
 - Create / edit / delete events directly from the map and the calendar (Level 2)
 - Filters by category and date shared by the map, calendar and charts (Level 3)
 - "AI Assist" on the create form: clean description and suggested category from pasted text
