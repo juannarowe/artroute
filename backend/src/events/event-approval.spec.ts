@@ -12,10 +12,8 @@ const feature = loadFeature('./event-approval.feature', {
   loadRelativePath: true,
 });
 
-// A valid MongoDB ObjectId (24 hex characters) for the fake event
 const EVENT_ID = '6702f1c4a9b3e5d7f8a1b2c3';
 
-// A fake event with the fields the service changes and a fake save()
 interface FakeEvent {
   status: EventStatus;
   rejectionNote?: string;
@@ -30,7 +28,6 @@ function createFakeEvent(): FakeEvent {
   };
 }
 
-// A fake Mongoose model: findById(id).exec() returns our fake event
 function createService(fakeEvent: FakeEvent) {
   const fakeModel = {
     findById: jest.fn().mockReturnValue({
@@ -40,7 +37,6 @@ function createService(fakeEvent: FakeEvent) {
   return new EventsService(fakeModel);
 }
 
-// A fake logged-in user with the given role
 function createUser(role: UserRole) {
   return { uid: `user-${role}`, role };
 }
@@ -149,7 +145,6 @@ defineFeature(feature, (test) => {
   test('"pending" is not an allowed status to send', ({ when, then }) => {
     let errorCount: number;
 
-    // Same check the global ValidationPipe does on the request body
     when(/^an admin sends the status "(.*)"$/, async (status: string) => {
       const body = plainToInstance(UpdateStatusDto, { status });
       const errors = await validate(body);

@@ -7,7 +7,6 @@ export function useImportArtBarcelona() {
   return useMutation({
     mutationFn: importFromArtBarcelona,
     onSuccess: () => {
-      // New pending events: refresh the lists in the Manage page
       queryClient.invalidateQueries({ queryKey: ["events"] });
     },
   });

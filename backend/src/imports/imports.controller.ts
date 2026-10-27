@@ -7,8 +7,8 @@ import type { AuthRequest } from '../auth/firebase-auth.guard';
 export class ImportsController {
   constructor(private importsService: ImportsService) {}
 
-  @Post('artbarcelona') // POST /imports/artbarcelona
-  @UseGuards(FirebaseAuthGuard) // logged in; the service checks the admin role
+  @Post('artbarcelona')
+  @UseGuards(FirebaseAuthGuard)
   importFromArtBarcelona(@Req() request: AuthRequest) {
     return this.importsService.importFromArtBarcelona(request.user);
   }

@@ -6,7 +6,6 @@ import { PageMessage } from "@/components/PageMessage";
 import { StatCard } from "@/components/StatCard";
 import { PopularEvents } from "@/components/PopularEvents";
 
-// Admin: stats of every event. Other users: stats of the events they created.
 export function Stats() {
   const {
     totals,

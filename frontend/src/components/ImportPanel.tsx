@@ -8,7 +8,6 @@ interface ImportPanelProps {
   onImport: () => void;
 }
 
-// "Dumb" panel: a button to import from ArtBarcelona and the result.
 export function ImportPanel({
   isImporting,
   result,

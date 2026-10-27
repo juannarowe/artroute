@@ -1,7 +1,3 @@
-// Asks Google Gemini (free tier) to read the Catalan event text and
-// return the fields we need, in English and in a fixed JSON shape.
-
-// Same list as frontend/src/lib/categories.ts
 const CATEGORIES = [
   'painting',
   'photography',
@@ -18,8 +14,6 @@ export interface EventDetails {
   price: number;
 }
 
-// The shape Gemini must answer with ("structured output").
-// Because of "enum", the category is always one of ours.
 const DETAILS_SCHEMA = {
   type: 'OBJECT',
   properties: {
@@ -31,13 +25,10 @@ const DETAILS_SCHEMA = {
   required: ['description', 'category', 'address', 'price'],
 };
 
-// The part of Gemini's response that we read
 interface GeminiResponse {
   candidates: { content: { parts: { text: string }[] } }[];
 }
 
-// Returns null when there is no API key or Gemini fails:
-// the import then goes on without AI.
 export async function extractEventDetails(
   title: string,
   venue: string,
@@ -78,13 +69,12 @@ Page: ${pageText}`;
           responseSchema: DETAILS_SCHEMA,
         },
       }),
-      signal: AbortSignal.timeout(30000), // give up after 30 seconds
+      signal: AbortSignal.timeout(30000),
     });
     if (!response.ok) {
       return null;
     }
     const result = (await response.json()) as GeminiResponse;
-    // Gemini's answer is a JSON text inside the first "candidate"
     const answer = result.candidates[0].content.parts[0].text;
     return JSON.parse(answer) as EventDetails;
   } catch {

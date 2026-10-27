@@ -5,7 +5,6 @@ import { getEvents } from "@/api/events";
 
 export function useMyEvents(filters: EventFilters = {}) {
   const { user } = useAuth();
-  // My events = any status, only the ones I created
   const myFilters = { ...filters, owner: user?.uid };
   return useQuery({
     queryKey: ["events", myFilters],

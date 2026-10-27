@@ -8,14 +8,12 @@ import { UpdateMeDto } from './dto/update-me.dto';
 
 const feature = loadFeature('./profile.feature', { loadRelativePath: true });
 
-// A fake user document with a fake save()
 interface FakeUser {
   firebaseUid: string;
   name: string;
   save: jest.Mock;
 }
 
-// A fake Mongoose model: findOne(...).exec() returns our fake user
 function createService(fakeUser: FakeUser) {
   const fakeModel = {
     findOne: jest.fn().mockReturnValue({
@@ -25,7 +23,6 @@ function createService(fakeUser: FakeUser) {
   return new UsersService(fakeModel);
 }
 
-// Same check the global ValidationPipe does (whitelist + forbid extra fields)
 async function countErrors(body: object) {
   const dto = plainToInstance(UpdateMeDto, body);
   const errors = await validate(dto, {

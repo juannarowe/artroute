@@ -6,9 +6,8 @@ import { FirebaseAuthGuard } from './firebase-auth.guard';
 import type { AuthRequest } from './firebase-auth.guard';
 import { UsersService } from '../users/users.service';
 
-// Replace firebase-admin with fakes: the tests never talk to Google.
 jest.mock('firebase-admin/app', () => ({
-  getApps: () => [{}], // pretend Firebase is already started
+  getApps: () => [{}],
   initializeApp: jest.fn(),
 }));
 const verifyIdToken = jest.fn();
@@ -19,19 +18,16 @@ jest.mock('firebase-admin/auth', () => ({
 
 const feature = loadFeature('./auth-guard.feature', { loadRelativePath: true });
 
-// A fake request with only the header the guard reads
 function createRequest(authorization?: string) {
   return { headers: { authorization } } as unknown as AuthRequest;
 }
 
-// NestJS gives guards an ExecutionContext; we build a minimal fake one
 function createContext(request: AuthRequest) {
   return {
     switchToHttp: () => ({ getRequest: () => request }),
   } as unknown as ExecutionContext;
 }
 
-// Fake UsersService: returns a user from our "database"
 const findOrCreate = jest.fn();
 const fakeUsersService = { findOrCreate } as unknown as UsersService;
 const fakeConfigService = {

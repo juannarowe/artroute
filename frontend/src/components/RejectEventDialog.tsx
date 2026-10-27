@@ -18,8 +18,6 @@ interface RejectEventDialogProps {
   onConfirm: (note: string) => void;
 }
 
-// A "Reject" button that opens a small window to write an optional note.
-// It doesn't talk to the backend: it gives the note to the parent (onConfirm).
 export function RejectEventDialog({
   eventTitle,
   disabled,

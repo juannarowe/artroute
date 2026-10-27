@@ -9,9 +9,6 @@ import {
   MinLength,
 } from 'class-validator';
 
-// Only the fields the USER may send. status, createdBy and attendees
-// are set by the server, so they are not here (and get rejected).
-
 export class CreateEventDto {
   @IsString()
   @MinLength(1)
@@ -35,7 +32,7 @@ export class CreateEventDto {
   @Max(180)
   lng: number;
 
-  @IsDateString() // "1990-05-21" or a full ISO date; Mongoose turns it into a Date
+  @IsDateString()
   date: string;
 
   @IsString()
@@ -54,7 +51,7 @@ export class CreateEventDto {
   @IsUrl()
   image?: string;
 
-  @IsOptional() // may be missing; if present, it must be a URL
+  @IsOptional()
   @IsUrl()
   externalLink?: string;
 }

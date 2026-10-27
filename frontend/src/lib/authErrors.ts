@@ -1,5 +1,3 @@
-// Firebase errors have a "code" like "auth/email-already-in-use".
-// We turn the most common ones into clear messages for the user.
 export function getRegisterErrorMessage(error: unknown): string {
   const code =
     typeof error === "object" && error !== null && "code" in error

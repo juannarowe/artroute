@@ -8,17 +8,13 @@ import { decodeHtml, fetchEventPage } from './event-page';
 import { extractEventDetails } from './gemini';
 import { geocodeAddress } from './geocode';
 
-// Keeps each run short and inside the free Gemini/Nominatim limits
 export const MAX_IMPORTS_PER_RUN = 10;
-// "createdBy" of imported events (they have no real Firebase user)
 export const IMPORT_USER = 'artbarcelona-import';
 
 @Injectable()
 export class ImportsService {
   constructor(@InjectModel(Event.name) private eventModel: Model<Event>) {}
 
-  // Creates "pending" events from the ArtBarcelona (GRAF) agenda.
-  // An admin reviews them in the Manage page before they are public.
   async importFromArtBarcelona(user: AuthUser) {
     if (user.role !== 'admin') {
       throw new ForbiddenException('Only admins can import events');
@@ -33,7 +29,6 @@ export class ImportsService {
         break;
       }
 
-      // Already imported before (any status)? Then don't create it twice.
       const existingEvent = await this.eventModel
         .findOne({ externalLink: opening.link })
         .exec();
@@ -50,13 +45,13 @@ export class ImportsService {
         page.text,
       );
       if (!details) {
-        skipped++; // Gemini failed: we don't know the address
+        skipped++;
         continue;
       }
 
       const coordinates = await geocodeAddress(details.address);
       if (!coordinates) {
-        skipped++; // no coordinates = no pin on the map
+        skipped++;
         continue;
       }
 

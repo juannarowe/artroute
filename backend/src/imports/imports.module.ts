@@ -7,7 +7,7 @@ import { ImportsController } from './imports.controller';
 
 @Module({
   imports: [
-    UsersModule, // the auth guard needs UsersService to read the role
+    UsersModule,
     MongooseModule.forFeature([{ name: Event.name, schema: EventSchema }]),
   ],
   providers: [ImportsService],

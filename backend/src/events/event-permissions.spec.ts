@@ -9,11 +9,8 @@ const feature = loadFeature('./event-permissions.feature', {
   loadRelativePath: true,
 });
 
-// A valid MongoDB ObjectId (24 hex characters) for the fake event
 const EVENT_ID = '6702f1c4a9b3e5d7f8a1b2c3';
 
-// A fake event document: only the fields and methods the service uses.
-// jest.fn() records every call, so we can check what the service did.
 function createFakeEvent(createdBy: string) {
   return {
     createdBy,
@@ -23,8 +20,6 @@ function createFakeEvent(createdBy: string) {
   };
 }
 
-// A fake Mongoose model: findById(id).exec() returns our fake event.
-// No real database is used, so the test is fast and always the same.
 function createFakeModel(fakeEvent: ReturnType<typeof createFakeEvent>) {
   return {
     findById: jest.fn().mockReturnValue({
