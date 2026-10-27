@@ -4,7 +4,7 @@ import { MongooseModule, getModelToken } from '@nestjs/mongoose';
 import { Test } from '@nestjs/testing';
 import { defineFeature, loadFeature } from 'jest-cucumber';
 import { MongoMemoryServer } from 'mongodb-memory-server';
-import { ConnectOptions, Model } from 'mongoose';
+import { Model } from 'mongoose';
 import * as os from 'os';
 import request, { Response } from 'supertest';
 import { App } from 'supertest/types';
