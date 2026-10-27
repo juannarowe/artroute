@@ -10,7 +10,11 @@ import { extractEventDetails } from './gemini';
 import { geocodeAddress } from './geocode';
 
 // Replace the internet calls with fakes: no GRAF, no Gemini, no OpenStreetMap
-jest.mock('./graf-api');
+// Keep the real parseBarcelonaTime, fake only the GRAF download
+jest.mock('./graf-api', () => ({
+  ...jest.requireActual<typeof import('./graf-api')>('./graf-api'),
+  fetchUpcomingOpenings: jest.fn(),
+}));
 jest.mock('./gemini');
 jest.mock('./geocode');
 // Keep the real decodeHtml, fake only the page download
@@ -245,6 +249,35 @@ defineFeature(feature, (test) => {
     });
     and('no event is saved', () => {
       expect(fakeModel.create).not.toHaveBeenCalled();
+    });
+  });
+
+  test('The opening time is read as Barcelona time', ({
+    given,
+    when,
+    then,
+    and,
+  }) => {
+    let fakeModel: FakeModel;
+
+    given(/^the agenda has an opening at "(.*)"$/, (start: string) => {
+      const opening = { ...createOpening(1), start };
+      jest.mocked(fetchUpcomingOpenings).mockResolvedValue([opening]);
+      fakeModel = createFakeModel(false);
+    });
+    and('the AI can read every opening', () => {
+      givenEverythingWorks();
+    });
+    when(
+      /^a user with role "(.*)" runs the import$/,
+      async (role: UserRole) => {
+        await runImport(fakeModel, role);
+      },
+    );
+    then(/^the event is saved at "(.*)"$/, (expectedDate: string) => {
+      expect(fakeModel.create).toHaveBeenCalledWith(
+        expect.objectContaining({ date: new Date(expectedDate) }),
+      );
     });
   });
 });
