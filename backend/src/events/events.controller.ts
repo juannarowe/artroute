@@ -17,6 +17,8 @@ import { CreateEventDto } from './dto/create-event.dto';
 import { UpdateEventDto } from './dto/update-event.dto';
 import { FirebaseAuthGuard } from '../auth/firebase-auth.guard';
 import type { AuthRequest } from '../auth/firebase-auth.guard';
+import { OptionalAuthGuard } from '../auth/optional-auth.guard';
+import type { OptionalAuthRequest } from '../auth/optional-auth.guard';
 import { UpdateStatusDto } from './dto/update-status.dto';
 
 @Controller('events')
@@ -24,16 +26,19 @@ export class EventsController {
   constructor(private eventsService: EventsService) {}
 
   @Get()
+  @UseGuards(OptionalAuthGuard)
   findAll(
+    @Req() request: OptionalAuthRequest,
     @Query('status') status?: EventStatus,
     @Query('owner') owner?: string,
   ) {
-    return this.eventsService.findAll(status, owner);
+    return this.eventsService.findAll(status, owner, request.user);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.eventsService.findOne(id);
+  @UseGuards(OptionalAuthGuard)
+  findOne(@Param('id') id: string, @Req() request: OptionalAuthRequest) {
+    return this.eventsService.findOne(id, request.user);
   }
 
   @Post()
