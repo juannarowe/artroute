@@ -134,35 +134,66 @@ Main rules of the project:
 3. **No duplicated state.** "Going" events, map pins, calendar items and chart data are **derived with `useMemo`** from the same cached `useEvents()` query — the map, calendar and stats never fetch.
 4. **Security lives in the backend.** Hiding a button is UX, not security:
    - `FirebaseAuthGuard` → 401 without a valid token
+   - visibility rule → visitors only see **published** events; pending and rejected events are visible only to their owner and to admins
    - DTO whitelist → users cannot send `status`, `createdBy` or `attendees`
    - owner rule → only the creator or an admin can edit/delete an event (403)
    - only admins can approve or reject (403); roles are stored in MongoDB, never taken from the request
 
 ### Backend request pipeline
 
-Every request goes through the same checks, in this order:
+There are two kinds of routes. **Public routes** (reading events) work without
+logging in, but the answer depends on who is asking. **Protected routes** need a
+valid Firebase token.
 
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
-flowchart LR
-  req["HTTP request"] --> guard["FirebaseAuthGuard<br/>verify token · load role"]
-  guard -- "no or bad token" --> e401["401 Unauthorized"]
-  guard --> pipe["ValidationPipe<br/>DTO whitelist"]
+flowchart TB
+  req["HTTP request"]
+
+  subgraph publicRoutes ["Public routes · login optional"]
+    optional["OptionalAuthGuard<br/>no token → visitor<br/>token → load uid and role"]
+    visibility["EventsService · visibility rule<br/>visitor → published only<br/>user → published + own events<br/>admin → every status"]
+    optional --> visibility
+  end
+
+  subgraph protectedRoutes ["Protected routes · login required"]
+    guard["FirebaseAuthGuard<br/>verify token · load role"]
+    pipe["ValidationPipe<br/>DTO whitelist"]
+    rules["Service<br/>owner / admin rules"]
+    guard --> pipe
+    pipe --> rules
+  end
+
+  req -- "GET /events · GET /events/:id" --> optional
+  req -- "every other route" --> guard
+
+  optional -- "bad token" --> e401["401 Unauthorized"]
+  guard -- "no or bad token" --> e401
   pipe -- "invalid body" --> e400["400 Bad Request"]
-  pipe --> ctrl["Controller<br/>route · params"]
-  ctrl --> svc["Service<br/>owner / admin rules"]
-  svc -- "not allowed" --> e403["403 Forbidden"]
-  svc -- "unknown id" --> e404["404 Not Found"]
-  svc --> model["Mongoose model"]
-  model --> db[("MongoDB")]
+  visibility -- "list pending or rejected<br/>without access" --> e403["403 Forbidden"]
+  rules -- "not the owner / not an admin" --> e403
+  visibility -- "hidden or unknown id" --> e404["404 Not Found"]
+  rules -- "unknown id" --> e404
+  visibility --> db[("MongoDB")]
+  rules --> db
 ```
+
+Who can read which events:
+
+| Who | `GET /events` (list) | `GET /events/:id` (one event) |
+|---|---|---|
+| Visitor (no token) | published only · asking for `pending` or `rejected` → 403 | published only · otherwise 404 |
+| User | published, or **all** their own events with `?owner=<their uid>` | published, or any status if they are the owner · otherwise 404 |
+| Admin | every status | every status |
+
+A hidden event answers **404**, not 403, so nobody can find out that it exists.
 
 ### API
 
 | Method | Route | Access | Description |
 |---|---|---|---|
-| GET | `/events?status=&owner=` | public | List events (sorted by date), optional filters |
-| GET | `/events/:id` | public | One event (404 for unknown or invalid ids) |
+| GET | `/events?status=&owner=` | public · login optional | List events (sorted by date). Visitors get published events only; see the table above |
+| GET | `/events/:id` | public · login optional | One event. Pending or rejected → only the owner or an admin, otherwise 404 |
 | POST | `/events` | logged in | Create an event (`status: pending`, `createdBy` = token uid) |
 | PATCH | `/events/:id` | owner or admin | Edit an event |
 | DELETE | `/events/:id` | owner or admin | Delete an event (204) |
@@ -177,8 +208,8 @@ flowchart LR
 ```mermaid
 %%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 erDiagram
-  USER ||--o{ EVENT : "creates (createdBy)"
-  USER }o--o{ EVENT : "goes to (attendees)"
+  USER ||..o{ EVENT : "creates (createdBy = uid)"
+  USER }o..o{ EVENT : "goes to (attendees = uids)"
   USER {
     string firebaseUid PK
     string name
@@ -198,12 +229,18 @@ erDiagram
     string image "optional"
     number price "0 = free"
     string externalLink "optional"
-    string createdBy FK "Firebase uid"
+    string createdBy "Firebase uid of the creator"
     string status "pending, published or rejected"
     string rejectionNote "optional"
     list attendees "Firebase uids"
   }
 ```
+
+The dashed lines are **conceptual relations**, not MongoDB foreign keys.
+`createdBy` and `attendees` store the user's **Firebase uid** as plain strings
+(the same value as `USER.firebaseUid`). MongoDB does not check or join them:
+the backend takes the uid from the verified token and compares it in the
+service (owner rule, "Go").
 
 ### AI import of openings (ArtBarcelona)
 
@@ -255,12 +292,12 @@ flowchart TB
     sEvents["/events<br/>All · Going"]
     sDetail["/events/:id"]
     sMap["/map"]
-    sStats["/stats"]
     sLogin["/login"]
     sRegister["/register"]
   end
   subgraph loggedIn ["Logged-in users"]
     sCalendar["/calendar"]
+    sStats["/stats"]
     sProfile["/profile"]
     sMyEvents["/my-events"]
     sCreate["/events/new"]
