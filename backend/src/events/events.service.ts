@@ -22,7 +22,17 @@ export class EventsService {
     }
   }
 
-  findAll(status?: EventStatus, createdBy?: string) {
+  private canSeeEvent(event: Event, user?: AuthUser) {
+    if (event.status === 'published') {
+      return true;
+    }
+    if (!user) {
+      return false;
+    }
+    return user.role === 'admin' || event.createdBy === user.uid;
+  }
+
+  async findAll(status?: EventStatus, createdBy?: string, user?: AuthUser) {
     const filter: { status?: EventStatus; createdBy?: string } = {};
     if (status) {
       filter.status = status;
@@ -30,21 +40,40 @@ export class EventsService {
     if (createdBy) {
       filter.createdBy = createdBy;
     }
+
+    const isAdmin = user?.role === 'admin';
+    const isMyOwnList = user !== undefined && createdBy === user.uid;
+
+    if (!isAdmin && !isMyOwnList) {
+      if (status && status !== 'published') {
+        throw new ForbiddenException('Only published events are public');
+      }
+      filter.status = 'published';
+    }
+
     return this.eventModel.find(filter).sort({ date: 1 }).exec();
   }
 
   private async findOwnedEvent(id: string, user: AuthUser) {
-    const event = await this.findOne(id);
+    const event = await this.findEvent(id);
     if (event.createdBy !== user.uid && user.role !== 'admin') {
       throw new ForbiddenException('You can only change your own events');
     }
     return event;
   }
 
-  async findOne(id: string) {
+  private async findEvent(id: string) {
     this.checkValidId(id);
     const event = await this.eventModel.findById(id).exec();
     if (!event) {
+      throw new NotFoundException(`Event ${id} not found`);
+    }
+    return event;
+  }
+
+  async findOne(id: string, user?: AuthUser) {
+    const event = await this.findEvent(id);
+    if (!this.canSeeEvent(event, user)) {
       throw new NotFoundException(`Event ${id} not found`);
     }
     return event;
@@ -69,7 +98,7 @@ export class EventsService {
   }
 
   async toggleGo(id: string, uid: string) {
-    const event = await this.findOne(id);
+    const event = await this.findEvent(id);
 
     if (event.status !== 'published') {
       throw new BadRequestException('You can only go to published events');
@@ -95,7 +124,7 @@ export class EventsService {
       throw new ForbiddenException('Only admins can change the status');
     }
 
-    const event = await this.findOne(id);
+    const event = await this.findEvent(id);
     event.status = updateStatusDto.status;
     event.rejectionNote =
       updateStatusDto.status === 'rejected'

@@ -7,6 +7,7 @@ import { useEvents } from "@/hooks/useEvents";
 import { useGoingEvents } from "@/hooks/useGoingEvents";
 import { useToggleGo } from "@/hooks/useToggleGo";
 import { PageMessage } from "@/components/PageMessage";
+import { GoErrorMessage } from "@/components/GoErrorMessage";
 
 export function Events() {
   const { user } = useAuth();
@@ -34,6 +35,8 @@ export function Events() {
   return (
     <div className="flex flex-col gap-4">
       <PageTitle>Events</PageTitle>
+
+      <GoErrorMessage error={toggleGoMutation.error} />
 
       <Tabs defaultValue="all">
         <TabsList>

@@ -15,6 +15,7 @@ Feature: Event lifecycle through the API (integration)
     Then the API answers 201
     And the event is "pending" and created by "ana"
     And the public list of published events is empty
+    And a visitor without a token cannot open the event
 
   Scenario: An admin publishes the event and users can go
     Given "ana" created an event

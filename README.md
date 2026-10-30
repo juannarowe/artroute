@@ -65,7 +65,7 @@ on the list, the map, the calendar and the charts at once, without reloading.
 ### System overview
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 flowchart LR
   person(["Visitor · User · Admin"])
   subgraph vercel ["Vercel"]
@@ -94,7 +94,7 @@ One request feeds the list, the map, the calendar and the charts: they all read
 the same React Query cache and transform it with `useMemo`.
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 flowchart TB
   subgraph pages ["Pages · dumb components"]
     direction LR
@@ -103,7 +103,7 @@ flowchart TB
     pCalendar["Calendar"]
     pStats["Stats"]
   end
-  subgraph derived ["Derived hooks · useMemo, no fetch"]
+  subgraph derived ["Derived hooks · no fetch"]
     direction LR
     hGoing["useGoingEvents"]
     hPins["useMapPins"]
@@ -134,35 +134,68 @@ Main rules of the project:
 3. **No duplicated state.** "Going" events, map pins, calendar items and chart data are **derived with `useMemo`** from the same cached `useEvents()` query — the map, calendar and stats never fetch.
 4. **Security lives in the backend.** Hiding a button is UX, not security:
    - `FirebaseAuthGuard` → 401 without a valid token
+   - visibility rule → visitors only see **published** events; pending and rejected events are visible only to their owner and to admins
    - DTO whitelist → users cannot send `status`, `createdBy` or `attendees`
    - owner rule → only the creator or an admin can edit/delete an event (403)
    - only admins can approve or reject (403); roles are stored in MongoDB, never taken from the request
 
 ### Backend request pipeline
 
-Every request goes through the same checks, in this order:
+There are two kinds of routes. **Public routes** (reading events) work without
+logging in, but the answer depends on who is asking. **Protected routes** need a
+valid Firebase token.
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
-flowchart LR
-  req["HTTP request"] --> guard["FirebaseAuthGuard<br/>verify token · load role"]
-  guard -- "no or bad token" --> e401["401 Unauthorized"]
-  guard --> pipe["ValidationPipe<br/>DTO whitelist"]
-  pipe -- "invalid body" --> e400["400 Bad Request"]
-  pipe --> ctrl["Controller<br/>route · params"]
-  ctrl --> svc["Service<br/>owner / admin rules"]
-  svc -- "not allowed" --> e403["403 Forbidden"]
-  svc -- "unknown id" --> e404["404 Not Found"]
-  svc --> model["Mongoose model"]
-  model --> db[("MongoDB")]
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+flowchart TB
+  req["HTTP request"]
+
+  subgraph publicRoutes ["Login optional"]
+    optional["OptionalAuthGuard<br/>no token → visitor<br/>token → load uid and role"]
+    visibility["EventsService · visibility rule<br/>visitor → published only<br/>user → published + own events<br/>admin → every status"]
+    optional --> visibility
+  end
+
+  subgraph protectedRoutes ["Login required"]
+    guard["FirebaseAuthGuard<br/>verify token · load role"]
+    pipe["ValidationPipe<br/>DTO whitelist"]
+    rules["Service<br/>owner / admin rules"]
+    guard --> pipe
+    pipe --> rules
+  end
+
+  req -- "GET /events<br/>GET /events/:id" --> optional
+  req -- "every other route" --> guard
+
+  publicErrors["401 bad token<br/>403 list pending or rejected<br/>404 hidden or unknown id"]
+  protectedErrors["401 no or bad token<br/>400 invalid body<br/>403 not the owner or admin<br/>404 unknown id"]
+  db[("MongoDB")]
+
+  optional -.-> publicErrors
+  visibility -.-> publicErrors
+  guard -.-> protectedErrors
+  pipe -.-> protectedErrors
+  rules -.-> protectedErrors
+  visibility --> db
+  rules --> db
 ```
+
+Who can read which events:
+
+| Who | `GET /events` (list) | `GET /events/:id` (one event) |
+|---|---|---|
+| Visitor (no token) | published only · asking for `pending` or `rejected` → 403 | published only · otherwise 404 |
+| User | published, or **all** their own events with `?owner=<their uid>` | published, or any status if they are the owner · otherwise 404 |
+| Admin | every status | every status |
+
+A hidden event answers **404**, not 403, so nobody can find out that it exists.
 
 ### API
 
 | Method | Route | Access | Description |
 |---|---|---|---|
-| GET | `/events?status=&owner=` | public | List events (sorted by date), optional filters |
-| GET | `/events/:id` | public | One event (404 for unknown or invalid ids) |
+| GET | `/events?status=&owner=` | public · login optional | List events (sorted by date). Visitors get published events only; see the table above |
+| GET | `/events/:id` | public · login optional | One event. Pending or rejected → only the owner or an admin, otherwise 404 |
 | POST | `/events` | logged in | Create an event (`status: pending`, `createdBy` = token uid) |
 | PATCH | `/events/:id` | owner or admin | Edit an event |
 | DELETE | `/events/:id` | owner or admin | Delete an event (204) |
@@ -175,10 +208,10 @@ flowchart LR
 ### Data model
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 erDiagram
-  USER ||--o{ EVENT : "creates (createdBy)"
-  USER }o--o{ EVENT : "goes to (attendees)"
+  USER ||..o{ EVENT : "creates"
+  USER }o..o{ EVENT : "goes to"
   USER {
     string firebaseUid PK
     string name
@@ -198,12 +231,18 @@ erDiagram
     string image "optional"
     number price "0 = free"
     string externalLink "optional"
-    string createdBy FK "Firebase uid"
+    string createdBy "Firebase uid of the creator"
     string status "pending, published or rejected"
     string rejectionNote "optional"
     list attendees "Firebase uids"
   }
 ```
+
+The dashed lines are **conceptual relations**, not MongoDB foreign keys.
+`createdBy` and `attendees` store the user's **Firebase uid** as plain strings
+(the same value as `USER.firebaseUid`). MongoDB does not check or join them:
+the backend takes the uid from the verified token and compares it in the
+service (owner rule, "Go").
 
 ### AI import of openings (ArtBarcelona)
 
@@ -214,7 +253,7 @@ events. The AI never publishes on its own: every imported event is **pending**
 until an admin approves it (*human in the loop*).
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 sequenceDiagram
   actor A as Admin
   participant API as NestJS API
@@ -248,19 +287,19 @@ sequenceDiagram
 ## Sitemap
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 flowchart TB
   home["/"] --> sEvents
   subgraph public ["Public"]
     sEvents["/events<br/>All · Going"]
     sDetail["/events/:id"]
     sMap["/map"]
-    sStats["/stats"]
     sLogin["/login"]
     sRegister["/register"]
   end
   subgraph loggedIn ["Logged-in users"]
     sCalendar["/calendar"]
+    sStats["/stats"]
     sProfile["/profile"]
     sMyEvents["/my-events"]
     sCreate["/events/new"]
@@ -282,7 +321,7 @@ flowchart TB
 ### Event lifecycle
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 stateDiagram-v2
   [*] --> pending : user submits the form
   [*] --> pending : AI import from ArtBarcelona
@@ -299,7 +338,7 @@ stateDiagram-v2
 ### Create an event → admin approval → everything in sync
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 sequenceDiagram
   actor U as User
   participant FE as React app
@@ -322,7 +361,7 @@ sequenceDiagram
 ### Mark "Go"
 
 ```mermaid
-%%{init: {"theme": "base", "themeVariables": {"fontFamily": "ui-sans-serif, system-ui, sans-serif", "fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
+%%{init: {"theme": "base", "htmlLabels": false, "flowchart": {"htmlLabels": false, "padding": 16, "wrappingWidth": 400}, "themeVariables": {"fontSize": "14px", "primaryColor": "#ffffff", "primaryTextColor": "#0a0a0a", "primaryBorderColor": "#0a0a0a", "secondaryColor": "#f5f5f5", "tertiaryColor": "#fafafa", "lineColor": "#737373", "textColor": "#737373", "clusterBkg": "#fafafa", "clusterBorder": "#a3a3a3", "titleColor": "#0a0a0a", "edgeLabelBackground": "#ffffff", "actorBkg": "#ffffff", "actorBorder": "#0a0a0a", "actorTextColor": "#0a0a0a", "actorLineColor": "#a3a3a3", "signalColor": "#737373", "signalTextColor": "#737373", "noteBkgColor": "#f5f5f5", "noteBorderColor": "#a3a3a3", "noteTextColor": "#0a0a0a", "labelBoxBkgColor": "#ffffff", "labelBoxBorderColor": "#0a0a0a", "labelTextColor": "#0a0a0a", "loopTextColor": "#737373", "activationBkgColor": "#f5f5f5", "activationBorderColor": "#0a0a0a", "attributeBackgroundColorOdd": "#ffffff", "attributeBackgroundColorEven": "#f5f5f5"}}}%%
 sequenceDiagram
   actor U as User
   participant FE as React app
