@@ -154,12 +154,18 @@ defineFeature(feature, (test) => {
     and(
       /^the event is "(.*)" and created by "(.*)"$/,
       async (status: string, uid: string) => {
-        const saved = await api().get(`/events/${eventId}`);
+        const saved = await api()
+          .get(`/events/${eventId}`)
+          .set('Authorization', `Bearer ${uid}`);
         expect(saved.body).toMatchObject({ status, createdBy: uid });
       },
     );
     and('the public list of published events is empty', async () => {
       expect(await publishedEvents()).toHaveLength(0);
+    });
+    and('a visitor without a token cannot open the event', async () => {
+      const visitorResponse = await api().get(`/events/${eventId}`);
+      expect(visitorResponse.status).toBe(404);
     });
   });
 
